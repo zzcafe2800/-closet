@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wardrobe</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #f4efe6;
+    font-family: 'Georgia', 'Hiragino Mincho ProN', serif;
+    overflow: hidden;
+    color: #3a2e25;
+  }
+
+  /* ===== 共通：画面切り替え ===== */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== ① 選択画面 ===== */
+  #selectScreen {
+    background: radial-gradient(ellipse at center, #faf6ee 0%, #ece4d4 100%);
+    gap: 8vw;
+    flex-wrap: wrap;
+  }
+
+  .pick {
+    width: 28vw;
+    max-width: 280px;
+    min-width: 180px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: #fffaf1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 20px 40px -20px rgba(80, 60, 40, 0.25);
+    transition: transform 0.5s cubic-bezier(.2,.8,.2,1), box-shadow 0.5s ease;
+  }
+  .pick:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 30px 50px -20px rgba(80, 60, 40, 0.35);
+  }
+  .pick svg {
+    width: 55%;
+    height: 55%;
+    stroke: #3a2e25;
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ===== ② クローゼット画面 ===== */
+  .closet {
+    flex-direction: column;
+    background: linear-gradient(180deg, #f0e8d8 0%, #e0d5c0 50%, #c8b89e 100%);
+    padding: 0;
+  }
+
+  .rack-wrap {
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    align-items: center;
+    scrollbar-width: thin;
+    scrollbar-color: #b8a890 transparent;
+  }
+  .rack-wrap::-webkit-scrollbar { height: 8px; }
+  .rack-wrap::-webkit-scrollbar-thumb { background: #b8a890; border-radius: 4px; }
+  .rack-wrap::-webkit-scrollbar-track { background: transparent; }
+
+  .rack {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 14vh 12vw 14vh 12vw;
+    min-width: max-content;
+  }
+
+  /* クローゼットの棒 */
+  .rack::before {
+    content: '';
+    position: absolute;
+    top: calc(14vh + 18px);
+    left: 8vw;
+    right: 8vw;
+    height: 4px;
+    background: linear-gradient(180deg, #d8c8b0 0%, #8a7560 45%, #5a4536 100%);
+    border-radius: 2px;
+    box-shadow: 0 3px 6px rgba(40, 30, 20, 0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+    z-index: 0;
+  }
+
+  .hang {
+    position: relative;
+    flex: 0 0 220px;
+    margin-left: -115px;
+    cursor: pointer;
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
+    z-index: 1;
+  }
+  .hang:first-child { margin-left: 0; }
+  .hang:nth-child(odd)  { transform: rotate(-1.2deg); }
+  .hang:nth-child(even) { transform: rotate(1.2deg); }
+
+  .hang:hover {
+    transform: translateY(-22px) rotate(0deg) !important;
+    z-index: 999;
+  }
+
+  .hanger {
+    width: 110px;
+    height: 55px;
+    display: block;
+    margin: 0 auto -6px;
+    stroke: #2e241c;
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+    position: relative;
+    z-index: 2;
+  }
+
+  .cloth {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 3px;
+    box-shadow:
+      0 14px 28px -10px rgba(60, 45, 30, 0.45),
+      0 2px 4px rgba(60, 45, 30, 0.15);
+    background: #fffaf1;
+    position: relative;
+  }
+  .cloth::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.08) 100%);
+    pointer-events: none;
+  }
+  .cloth img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* 戻るボタン */
+  .back {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fffaf1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px -4px rgba(60, 45, 30, 0.35);
+    transition: transform 0.3s ease;
+    z-index: 50;
+    border: none;
+  }
+  .back:hover { transform: scale(1.08); }
+  .back svg {
+    width: 18px; height: 18px;
+    stroke: #3a2e25;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* スクロールヒント */
+  .hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    opacity: 0.4;
+    pointer-events: none;
+    animation: slide 2s ease-in-out infinite;
+  }
+  .hint span {
+    width: 6px;
+    height: 6px;
+    background: #3a2e25;
+    border-radius: 50%;
+  }
+  @keyframes slide {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-4px); }
+  }
+
+  /* ===== ③ ライトボックス（拡大＋タイトル＋作者） ===== */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(28, 20, 14, 0.94);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 6vh 6vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  #lightbox.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #lightbox img {
+    max-width: 80vw;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7);
+    transform: scale(0.96);
+    transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  #lightbox.active img { transform: scale(1); }
+
+  .caption {
+    text-align: center;
+    color: #f4efe6;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+  }
+  #lightbox.active .caption {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .caption .title {
+    font-size: 1.35rem;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    margin-bottom: 6px;
+  }
+  .caption .author {
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    opacity: 0.65;
+    font-style: italic;
+    text-transform: uppercase;
+  }
+  .caption .author:empty,
+  .caption .title:empty { display: none; }
+
+  /* 入場アニメーション */
+  .closet.active .hang {
+    animation: drop 0.7s cubic-bezier(.2,.8,.2,1) backwards;
+  }
+  .closet.active .hang:nth-child(1)  { animation-delay: 0.05s; }
+  .closet.active .hang:nth-child(2)  { animation-delay: 0.10s; }
+  .closet.active .hang:nth-child(3)  { animation-delay: 0.15s; }
+  .closet.active .hang:nth-child(4)  { animation-delay: 0.20s; }
+  .closet.active .hang:nth-child(5)  { animation-delay: 0.25s; }
+  .closet.active .hang:nth-child(6)  { animation-delay: 0.30s; }
+  .closet.active .hang:nth-child(7)  { animation-delay: 0.35s; }
+  .closet.active .hang:nth-child(8)  { animation-delay: 0.40s; }
+  .closet.active .hang:nth-child(n+9){ animation-delay: 0.45s; }
+
+  @keyframes drop {
+    from { opacity: 0; transform: translateY(-30px) rotate(0); }
+  }
+
+  #selectScreen.active .pick {
+    animation: fadeIn 0.8s ease backwards;
+  }
+  #selectScreen.active .pick:nth-child(1) { animation-delay: 0.1s; }
+  #selectScreen.active .pick:nth-child(2) { animation-delay: 0.3s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* スマホ調整 */
+  @media (max-width: 600px) {
+    .hang { flex: 0 0 160px; margin-left: -85px; }
+    .hanger { width: 85px; height: 45px; }
+    .rack { padding: 12vh 8vw; }
+    .rack::before { left: 5vw; right: 5vw; top: calc(12vh + 14px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== ① 選択画面：猫 or ライオン ========== -->
+<div id="selectScreen" class="screen active">
+
+  <!-- 猫 -->
+  <div class="pick" onclick="openCloset('cat')">
+    <svg viewBox="0 0 100 100">
+      <path d="M 25 35 L 30 22 L 42 32 Q 50 30 58 32 L 70 22 L 75 35 Q 82 48 75 65 Q 65 80 50 80 Q 35 80 25 65 Q 18 48 25 35 Z"/>
+      <circle cx="40" cy="50" r="2" fill="#3a2e25" stroke="none"/>
+      <circle cx="60" cy="50" r="2" fill="#3a2e25" stroke="none"/>
+      <path d="M 48 60 L 50 62 L 52 60 Z" fill="#3a2e25" stroke="none"/>
+      <path d="M 50 62 Q 50 66 46 67 M 50 62 Q 50 66 54 67"/>
+      <path d="M 30 58 L 38 60 M 30 64 L 38 62"/>
+      <path d="M 70 58 L 62 60 M 70 64 L 62 62"/>
+    </svg>
+  </div>
+
+  <!-- ライオン -->
+  <div class="pick" onclick="openCloset('lion')">
+    <svg viewBox="0 0 100 100">
+      <path d="M 50 12 Q 60 14 64 20 Q 74 18 78 26 Q 86 30 84 40 Q 90 46 86 54 Q 90 64 82 68 Q 82 78 72 78 Q 66 86 56 82 Q 50 86 44 82 Q 34 86 28 78 Q 18 78 18 68 Q 10 64 14 54 Q 10 46 16 40 Q 14 30 22 26 Q 26 18 36 20 Q 40 14 50 12 Z"/>
+      <path d="M 35 42 Q 35 38 40 36 Q 50 34 60 36 Q 65 38 65 42 Q 68 50 65 58 Q 62 68 50 70 Q 38 68 35 58 Q 32 50 35 42 Z"/>
+      <circle cx="43" cy="50" r="2" fill="#3a2e25" stroke="none"/>
+      <circle cx="57" cy="50" r="2" fill="#3a2e25" stroke="none"/>
+      <path d="M 47 58 Q 50 60 53 58 Q 52 62 50 62 Q 48 62 47 58 Z" fill="#3a2e25" stroke="none"/>
+      <path d="M 50 62 L 50 64 M 50 64 Q 50 67 46 67 M 50 64 Q 50 67 54 67"/>
+    </svg>
+  </div>
+
+</div>
+
+
+<!-- ========== ② 猫のクローゼット ========== -->
+<div id="catCloset" class="screen closet">
+  <button class="back" onclick="goBack()" aria-label="back">
+    <svg viewBox="0 0 24 24"><path d="M15 6 L9 12 L15 18"/></svg>
+  </button>
+  <div class="rack-wrap">
+    <div class="rack" id="catRack"></div>
+  </div>
+  <div class="hint"><span></span><span></span><span></span></div>
+</div>
+
+
+<!-- ========== ③ ライオンのクローゼット ========== -->
+<div id="lionCloset" class="screen closet">
+  <button class="back" onclick="goBack()" aria-label="back">
+    <svg viewBox="0 0 24 24"><path d="M15 6 L9 12 L15 18"/></svg>
+  </button>
+  <div class="rack-wrap">
+    <div class="rack" id="lionRack"></div>
+  </div>
+  <div class="hint"><span></span><span></span><span></span></div>
+</div>
+
+
+<!-- ========== ④ 拡大表示 ========== -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+  <div class="caption">
+    <div class="title" id="lbTitle"></div>
+    <div class="author" id="lbAuthor"></div>
+  </div>
+</div>
+
+
+<script>
+/* ============================================================
+   ▼▼▼ ここに服の情報を入れる ▼▼▼
+   url    : 画像のURL（例：cat1.png）
+   title  : タイトル（例：白いシャツ）
+   author : 作者名（例：田中）
+   ※ title や author は空文字 "" でもOK（表示されないだけ）
+   ※ 行を増やしたり減らしたりして枚数調整できます
+============================================================ */
+
+const catWardrobe = [
+  { url: "cat1.png", title: "",  author: "" },
+  { url: "cat2.png", title: "",  author: "" },
+  { url: "cat3.png", title: "",  author: "" },
+  { url: "cat4.png", title: "",  author: "" },
+  { url: "cat5.png", title: "",  author: "" },
+  { url: "cat6.png", title: "",  author: "" },
+  { url: "cat7.png", title: "",  author: "" },
+  { url: "cat8.png", title: "",  author: "" },
+];
+
+const lionWardrobe = [
+  { url: "lion1.png", title: "",  author: "" },
+  { url: "lion2.png", title: "",  author: "" },
+  { url: "lion3.png", title: "",  author: "" },
+  { url: "lion4.png", title: "",  author: "" },
+  { url: "lion5.png", title: "",  author: "" },
+  { url: "lion6.png", title: "",  author: "" },
+  { url: "lion7.png", title: "",  author: "" },
+  { url: "lion8.png", title: "",  author: "" },
+];
+
+/* ============================================================
+   ▲▲▲ ここまで。下は触らなくてOK ▲▲▲
+============================================================ */
+
+
+// ハンガーSVG
+const HANGER = `
+  <svg class="hanger" viewBox="0 0 110 55">
+    <path d="M 55 6 Q 49 6 49 13 Q 49 19 55 22"/>
+    <line x1="55" y1="22" x2="55" y2="26"/>
+    <path d="M 55 26 L 15 48 L 95 48 Z"/>
+  </svg>`;
+
+// ラックを描画する
+function renderRack(containerId, items) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = items.map(item => `
+    <div class="hang">
+      ${HANGER}
+      <div class="cloth"><img src="${item.url}" alt=""></div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.hang').forEach((el, i) => {
+    el.addEventListener('click', () => {
+      const it = items[i];
+      showImage(it.url, it.title, it.author);
+    });
+  });
+}
+
+renderRack('catRack',  catWardrobe);
+renderRack('lionRack', lionWardrobe);
+
+
+// 画面切り替え
+const screens = {
+  select: document.getElementById('selectScreen'),
+  cat:    document.getElementById('catCloset'),
+  lion:   document.getElementById('lionCloset')
+};
+function show(key) {
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[key].classList.add('active');
+}
+function openCloset(who) { show(who); }
+function goBack()        { show('select'); }
+
+
+// 拡大表示
+const lb       = document.getElementById('lightbox');
+const lbImg    = document.getElementById('lightboxImg');
+const lbTitle  = document.getElementById('lbTitle');
+const lbAuthor = document.getElementById('lbAuthor');
+
+function showImage(url, title, author) {
+  lbImg.src = url;
+  lbTitle.textContent  = title  || '';
+  lbAuthor.textContent = author || '';
+  lb.classList.add('active');
+}
+function closeLightbox() {
+  lb.classList.remove('active');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (lb.classList.contains('active')) closeLightbox();
+    else goBack();
+  }
+});
+</script>
+
+</body>
+</html>
