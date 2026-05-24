@@ -11,28 +11,29 @@
 <style>
 /* =====================================================
    ZUZU · CLOSET  —  05.24 birthday gift site
-   Edit the DATA object at the bottom of <script>
-   to add your image URLs, titles and descriptions.
+   Scroll to the DATA object inside <script> to edit
+   image URLs, titles, descriptions and artist credits.
    ===================================================== */
 
 :root {
-  --bg:        #f4f1e8;
-  --bg-soft:   #efece2;
-  --bg-warm:   #e8e2d1;
-  --paper:     #fbf9f2;
-  --ink:       #14140f;
-  --ink-mid:   #4a4540;
-  --ink-soft:  #8a857c;
-  --line:      #c8c3b6;
-  --line-soft: #ddd8c9;
+  --bg:        #f6f2e8;
+  --bg-soft:   #f2eee0;
+  --paper:     #fdfaf2;
+  --ink:       #1a1812;
+  --ink-mid:   #585249;
+  --ink-soft:  #9c958a;
+  --line:      #d5cfbe;
+  --line-soft: #e3ddcc;
 
-  --accent-a:  #7a99b4;   /* cool blue */
-  --accent-b:  #c89a78;   /* warm tan */
-  --accent-c:  #b87a8a;   /* rose */
-  --accent-d:  #b08a4a;   /* amber lion */
+  /* cat side : soft pink / peach  */
+  --accent-a:  #d68996;
+  --accent-b:  #d4a47a;
+  /* lion side : honey / amber */
+  --accent-c:  #c89055;
+  --accent-d:  #a87a40;
 
-  --shadow-1:  0 1px 2px rgba(20,20,15,0.04), 0 8px 30px rgba(20,20,15,0.08);
-  --shadow-2:  0 2px 4px rgba(20,20,15,0.06), 0 22px 60px rgba(20,20,15,0.15);
+  --shadow-1:  0 2px 4px rgba(26,24,18,0.04), 0 12px 32px rgba(26,24,18,0.08);
+  --shadow-2:  0 4px 8px rgba(26,24,18,0.06), 0 24px 60px rgba(26,24,18,0.14);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -41,9 +42,11 @@ html, body {
   background: var(--bg);
   color: var(--ink);
   font-family: 'Cormorant', serif;
-  min-height: 100vh;
   overflow-x: hidden;
-  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
 }
 
 /* paper grain */
@@ -53,19 +56,19 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
-  opacity: 0.06;
+  opacity: 0.05;
   mix-blend-mode: multiply;
   z-index: 999;
 }
 
-/* faint grid lines bg */
+/* faint grid bg */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(20,20,15,0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(26,24,18,0.022) 1px, transparent 1px);
   background-size: 80px 80px;
   z-index: 0;
 }
@@ -73,30 +76,24 @@ body::after {
 /* =========================
    SCREEN SWITCHING
    ========================= */
-.screen {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity .55s ease, transform .55s ease;
-  pointer-events: none;
-  z-index: 1;
-}
+.screen { display: none; }
 .screen.active {
-  position: relative;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-  z-index: 2;
+  display: block;
+  animation: screenIn .5s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* =========================
    SELECTION SCREEN
    ========================= */
 #selection {
-  padding: 32px clamp(20px, 4vw, 56px) 70px;
   position: relative;
+  padding: 38px clamp(22px, 5vw, 64px) 50px;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 /* top frame  */
@@ -106,7 +103,7 @@ body::after {
   align-items: flex-start;
   border-bottom: 1px solid var(--ink);
   padding-bottom: 18px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .brand-box {
@@ -139,11 +136,7 @@ body::after {
   gap: 3px;
   margin-top: 4px;
 }
-.swatch {
-  width: 13px;
-  height: 13px;
-  border: 1px solid var(--ink);
-}
+.swatch { width: 13px; height: 13px; border: 1px solid var(--ink); }
 .swatch.f1 { background: var(--ink); }
 .swatch.f2 { background: var(--paper); }
 .swatch.f3 { background: var(--accent-a); border-color: var(--accent-a); }
@@ -154,11 +147,11 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 4px;
 }
 .year-mark {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(40px, 5vw, 60px);
+  font-size: clamp(34px, 4vw, 50px);
   line-height: 0.95;
   letter-spacing: -0.01em;
   display: flex;
@@ -166,8 +159,8 @@ body::after {
   gap: 8px;
 }
 .year-mark .glyph {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border: 1.4px solid var(--ink);
   display: inline-flex;
   align-items: center;
@@ -185,18 +178,18 @@ body::after {
 .hangers {
   display: flex;
   justify-content: center;
-  gap: clamp(40px, 8vw, 90px);
-  margin: 28px 0 0;
+  gap: clamp(36px, 7vw, 80px);
+  margin: 18px 0 0;
   position: relative;
   z-index: 3;
 }
 .hangers svg {
-  width: 42px;
-  height: 30px;
+  width: 36px;
+  height: 26px;
   stroke: var(--ink);
   stroke-width: 1.2;
   fill: none;
-  opacity: 0.7;
+  opacity: 0.6;
   animation: hangerSway 6s ease-in-out infinite;
   transform-origin: top center;
 }
@@ -204,16 +197,17 @@ body::after {
 .hangers svg:nth-child(3) { animation-delay: -3s; }
 .hangers svg:nth-child(4) { animation-delay: -4.5s; }
 @keyframes hangerSway {
-  0%, 100% { transform: rotate(-1.2deg); }
-  50%      { transform: rotate(1.2deg); }
+  0%, 100% { transform: rotate(-1deg); }
+  50%      { transform: rotate(1deg); }
 }
 
-/* closet rod */
+/* rod */
 .rod {
-  height: 1.5px;
+  height: 1.4px;
   background: var(--ink);
-  margin: -1px auto 36px;
-  width: 92%;
+  margin: -1px auto 28px;
+  width: 86%;
+  max-width: 800px;
   position: relative;
 }
 .rod::before, .rod::after {
@@ -231,12 +225,12 @@ body::after {
 /* title */
 .main-title {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   position: relative;
 }
 .main-title h1 {
   font-family: 'Italiana', serif;
-  font-size: clamp(54px, 10vw, 130px);
+  font-size: clamp(46px, 6.5vw, 88px);
   letter-spacing: 0.18em;
   font-weight: 400;
   line-height: 0.95;
@@ -244,44 +238,44 @@ body::after {
   position: relative;
 }
 .main-title h1 .ast {
-  font-family: 'Cormorant', serif;
-  font-size: 0.3em;
+  font-size: 0.35em;
   vertical-align: super;
   letter-spacing: 0;
   color: var(--accent-a);
+  margin: 0 0.05em;
 }
 .main-title .sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.55em;
+  font-size: 10.5px;
+  letter-spacing: 0.5em;
   color: var(--ink-mid);
-  margin-top: 12px;
+  margin-top: 14px;
   text-transform: uppercase;
 }
 
 .quote {
   text-align: center;
   font-family: 'Caveat', cursive;
-  font-size: 26px;
+  font-size: 24px;
   color: var(--accent-a);
-  margin: 26px 0 56px;
-  font-weight: 400;
+  margin: 22px 0 36px;
+  font-weight: 500;
   position: relative;
 }
 .quote::before, .quote::after {
-  content: '—';
+  content: '✦';
   margin: 0 14px;
   color: var(--ink-soft);
-  font-family: 'Cormorant', serif;
-  font-size: 22px;
+  font-size: 14px;
+  vertical-align: 4px;
 }
 
 /* strips */
 .strips {
   display: flex;
   flex-direction: column;
-  gap: clamp(20px, 3vw, 34px);
-  max-width: 1140px;
+  gap: 24px;
+  max-width: 760px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -290,41 +284,52 @@ body::after {
 .strip {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 3vw, 36px);
+  gap: clamp(14px, 2.5vw, 28px);
   cursor: pointer;
   opacity: 0;
   transform: translateX(-30px);
   animation: stripIn .8s cubic-bezier(.2,.8,.2,1) forwards;
 }
-.strip:nth-child(1) { animation-delay: .15s; }
-.strip:nth-child(2) { animation-delay: .28s; flex-direction: row-reverse; transform: translateX(30px); }
-.strip:nth-child(3) { animation-delay: .41s; }
-.strip:nth-child(4) { animation-delay: .54s; flex-direction: row-reverse; transform: translateX(30px); }
+.strip:nth-child(1) { animation-delay: .12s; }
+.strip:nth-child(2) { animation-delay: .24s; flex-direction: row-reverse; transform: translateX(30px); }
+.strip:nth-child(3) { animation-delay: .36s; }
+.strip:nth-child(4) { animation-delay: .48s; flex-direction: row-reverse; transform: translateX(30px); }
 @keyframes stripIn { to { opacity: 1; transform: translateX(0); } }
 
 .strip-meta {
   flex-shrink: 0;
-  width: 130px;
+  width: 100px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
-.strip:nth-child(even) .strip-meta { flex-direction: row-reverse; }
-.strip-icon { width: 44px; height: 16px; stroke: var(--ink-mid); stroke-width: 1; fill: none; }
+.strip:nth-child(even) .strip-meta {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.strip-icon {
+  width: 28px;
+  height: 24px;
+  color: var(--ink-mid);
+  flex-shrink: 0;
+}
 .strip-num {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   color: var(--ink-mid);
+  white-space: nowrap;
 }
 
 .strip-banner {
   flex: 1;
   position: relative;
-  height: clamp(100px, 14vw, 160px);
+  aspect-ratio: 1920 / 900;
   overflow: hidden;
-  background: var(--bg-warm);
+  background: var(--bg-soft);
   box-shadow: var(--shadow-1);
+  border-radius: 4px;
   transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s;
 }
 .strip-banner img {
@@ -333,41 +338,22 @@ body::after {
   object-fit: cover;
   display: block;
   transition: transform .8s ease, filter .5s ease;
-  filter: grayscale(0.08) brightness(0.97);
+  filter: grayscale(0.06) brightness(0.97);
 }
 .strip:hover .strip-banner {
-  transform: translateY(-3px);
+  transform: translateY(-3px) rotate(-0.2deg);
   box-shadow: var(--shadow-2);
 }
 .strip:hover .strip-banner img {
-  transform: scale(1.05);
+  transform: scale(1.04);
   filter: grayscale(0) brightness(1.02);
 }
-
-/* banner overlay label */
-.strip-banner::before {
-  content: attr(data-label);
-  position: absolute;
-  bottom: 10px;
-  left: 16px;
-  font-family: 'Italiana', serif;
-  font-size: clamp(20px, 2.5vw, 28px);
-  letter-spacing: 0.22em;
-  color: var(--paper);
-  text-shadow: 0 1px 12px rgba(0,0,0,0.4);
-  mix-blend-mode: difference;
-  z-index: 2;
-}
-.strip:nth-child(even) .strip-banner::before {
-  left: auto;
-  right: 16px;
-}
-
 .strip-banner::after {
   content: '';
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
   pointer-events: none;
 }
 
@@ -376,7 +362,7 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: clamp(50px, 8vw, 90px);
+  margin-top: 56px;
   padding-top: 22px;
   border-top: 1px solid var(--line);
   gap: 30px;
@@ -385,9 +371,10 @@ body::after {
   font-family: 'Caveat', cursive;
   font-size: 22px;
   color: var(--ink-mid);
-  line-height: 1.25;
+  line-height: 1.2;
   max-width: 280px;
 }
+.footer-left .heart { color: var(--accent-a); }
 .footer-left small {
   display: block;
   font-family: 'JetBrains Mono', monospace;
@@ -403,7 +390,7 @@ body::after {
   align-items: center;
   gap: 14px;
 }
-.barcode-block svg { height: 34px; }
+.barcode-block svg { height: 30px; }
 .barcode-num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -419,23 +406,39 @@ body::after {
   letter-spacing: 0.2em;
   color: var(--ink-soft);
   text-transform: uppercase;
+  pointer-events: none;
 }
 .ct-tl { top: 14px; left: 14px; }
 .ct-tr { top: 14px; right: 14px; }
 .ct-bl { bottom: 14px; left: 14px; }
 .ct-br { bottom: 14px; right: 14px; }
 
+/* tiny decorative sparkle */
+.sparkle {
+  position: absolute;
+  color: var(--accent-a);
+  opacity: 0.5;
+  font-size: 10px;
+  pointer-events: none;
+  animation: twinkle 3s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 0.7; transform: scale(1.1); }
+}
+
+
 /* =========================
    GALLERY SCREEN
    ========================= */
 #gallery {
-  padding: 28px clamp(20px, 4vw, 52px) 30px;
+  position: relative;
+  padding: 28px clamp(22px, 4vw, 52px) 28px;
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, var(--paper) 0%, var(--bg) 60%);
+    radial-gradient(ellipse 80% 60% at 50% 0%, var(--paper) 0%, var(--bg) 70%);
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
 .gallery-top {
@@ -443,8 +446,7 @@ body::after {
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--ink);
-  padding-bottom: 16px;
-  margin-bottom: 0;
+  padding-bottom: 14px;
 }
 
 .back-btn {
@@ -480,52 +482,54 @@ body::after {
   border-color: var(--ink);
 }
 
-/* watermark big text */
-.bg-text {
-  font-family: 'Anton', sans-serif;
-  font-size: clamp(72px, 16vw, 220px);
-  letter-spacing: -0.02em;
-  line-height: 0.82;
-  color: var(--ink);
+/* chapter title bar */
+.chapter-bar {
   text-align: center;
-  margin-top: 18px;
-  margin-bottom: -10px;
-  position: relative;
-  z-index: 1;
-  transition: opacity .4s;
+  margin: 22px 0 8px;
 }
-.bg-text .accent {
-  font-style: italic;
-  font-family: 'Cormorant', serif;
-  font-weight: 300;
-  letter-spacing: 0;
+.chapter-bar .ch-title {
+  font-family: 'Italiana', serif;
+  font-size: clamp(32px, 4.5vw, 56px);
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
 }
-.bg-text .dot-mark {
+.chapter-bar .ch-title::before,
+.chapter-bar .ch-title::after {
+  content: '';
   display: inline-block;
-  width: 0.18em;
-  height: 0.18em;
-  background: currentColor;
-  border-radius: 50%;
-  vertical-align: 0.32em;
-  margin: 0 0.08em;
+  width: 60px;
+  height: 1px;
+  background: var(--line);
+}
+.chapter-bar .ch-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--ink-mid);
+  margin-top: 8px;
+  text-transform: uppercase;
 }
 
 /* display */
 .display {
   flex: 1;
   display: grid;
-  grid-template-columns: 80px 1fr 80px;
+  grid-template-columns: 70px 1fr 70px;
   align-items: center;
   position: relative;
-  padding: 16px 0;
-  min-height: 60vh;
+  padding: 8px 0;
+  min-height: 0;
 }
 
 .nav-arrow {
   position: relative;
   z-index: 5;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border: 1px solid var(--ink);
   border-radius: 50%;
   background: var(--paper);
@@ -534,11 +538,10 @@ body::after {
   justify-content: center;
   cursor: pointer;
   font-family: 'Italiana', serif;
-  font-size: 24px;
+  font-size: 22px;
   color: var(--ink);
   transition: all .35s cubic-bezier(.2,.8,.2,1);
   justify-self: center;
-  letter-spacing: 0;
 }
 .nav-arrow:hover:not(:disabled) {
   background: var(--ink);
@@ -546,7 +549,7 @@ body::after {
   transform: scale(1.08);
 }
 .nav-arrow:disabled {
-  opacity: 0.2;
+  opacity: 0.18;
   cursor: not-allowed;
 }
 
@@ -556,6 +559,7 @@ body::after {
   justify-content: center;
   align-items: center;
   height: 100%;
+  min-height: 0;
 }
 
 .image-frame {
@@ -564,18 +568,33 @@ body::after {
   justify-content: center;
   align-items: center;
   transition: opacity .35s ease;
+  max-height: 100%;
 }
 .image-frame img {
-  max-height: 60vh;
-  max-width: 100%;
+  max-height: 62vh;
+  max-width: 90%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 22px 50px rgba(20,20,15,0.18));
+  filter: drop-shadow(0 20px 40px rgba(26,24,18,0.18));
   transition: opacity .35s ease, transform .5s cubic-bezier(.2,.8,.2,1);
+  border-radius: 2px;
 }
 .image-frame.changing img {
   opacity: 0;
   transform: scale(0.97) translateY(8px);
+}
+
+/* heart corner stamp on image */
+.image-frame::before {
+  content: '♡';
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  font-size: 24px;
+  color: var(--accent-cur, var(--accent-a));
+  opacity: 0.6;
+  z-index: 6;
+  pointer-events: none;
 }
 
 /* vertical side text  */
@@ -587,62 +606,65 @@ body::after {
   text-orientation: mixed;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  letter-spacing: 0.45em;
+  letter-spacing: 0.4em;
   color: var(--ink-mid);
   pointer-events: none;
   z-index: 2;
   text-transform: uppercase;
 }
 .side-text.left {
-  left: 90px;
+  left: 60px;
   padding: 4px 0 4px 14px;
   border-left: 1px solid var(--line);
 }
 .side-text.right {
-  right: 90px;
+  right: 60px;
   padding: 4px 14px 4px 0;
   border-right: 1px solid var(--line);
   text-align: right;
 }
 
-/* title floating (handwritten) */
+/* title floating */
 .item-title {
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
   font-family: 'Caveat', cursive;
-  font-size: clamp(24px, 3vw, 36px);
+  font-size: clamp(22px, 2.5vw, 32px);
   font-weight: 600;
   color: var(--accent-cur, var(--accent-a));
-  z-index: 5;
-  white-space: nowrap;
   text-align: center;
-  text-shadow: 0 2px 16px rgba(255,250,240,0.9);
-  pointer-events: none;
-  opacity: 0;
-  animation: titleIn .6s ease forwards .25s;
+  white-space: nowrap;
+  text-shadow: 0 2px 16px rgba(253,250,242,0.9);
+  margin-top: 14px;
 }
-@keyframes titleIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+.item-title:empty { display: none; }
+
+/* artist credit (was bgWord) */
+.item-artist {
+  font-family: 'Cormorant', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
 }
-.item-title::before, .item-title::after {
-  content: '';
-  display: inline-block;
-  width: 26px;
-  height: 1px;
-  background: currentColor;
-  vertical-align: middle;
-  margin: 0 14px;
-  opacity: 0.4;
+.item-artist:empty { display: none; }
+.item-artist::before {
+  content: '— ';
+  color: var(--ink-soft);
+}
+.item-artist::after {
+  content: ' —';
+  color: var(--ink-soft);
 }
 
+/* description text */
 .item-desc {
   position: absolute;
-  bottom: 60px;
-  right: 100px;
-  max-width: 220px;
+  top: 50%;
+  right: 90px;
+  transform: translateY(-50%);
+  max-width: 180px;
   font-family: 'Cormorant', serif;
   font-style: italic;
   font-size: 14px;
@@ -650,14 +672,23 @@ body::after {
   line-height: 1.55;
   z-index: 4;
   text-align: right;
-  padding-right: 14px;
+  padding-right: 12px;
   border-right: 1px solid var(--accent-cur, var(--accent-a));
   opacity: 0;
-  animation: descIn .6s ease forwards .35s;
+  animation: descIn .6s ease forwards .25s;
 }
+.item-desc:empty { display: none; }
 @keyframes descIn {
-  from { opacity: 0; transform: translateX(8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(-50%) translateX(8px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* image meta wrapper (title + artist below image) */
+.image-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 12px;
 }
 
 /* bottom bar */
@@ -665,7 +696,7 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding-top: 18px;
+  padding-top: 14px;
   border-top: 1px solid var(--line);
   gap: 24px;
 }
@@ -675,6 +706,7 @@ body::after {
   color: var(--ink-mid);
   line-height: 1.2;
 }
+.gallery-bottom-left .heart { color: var(--accent-cur, var(--accent-a)); }
 .gallery-bottom-left small {
   display: block;
   font-family: 'JetBrains Mono', monospace;
@@ -698,14 +730,14 @@ body::after {
 }
 .counter-cur {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(32px, 4vw, 48px);
   letter-spacing: 0.02em;
   line-height: 0.9;
   color: var(--ink);
 }
 .counter-sep {
   font-family: 'Italiana', serif;
-  font-size: 28px;
+  font-size: 24px;
   color: var(--ink-soft);
   margin: 0 6px;
 }
@@ -720,9 +752,12 @@ body::after {
   display: flex;
   gap: 5px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 260px;
 }
 .dot {
-  width: 16px;
+  width: 14px;
   height: 2px;
   background: var(--line);
   transition: all .35s;
@@ -730,11 +765,11 @@ body::after {
 }
 .dot.active {
   background: var(--ink);
-  width: 26px;
+  width: 24px;
 }
 .dot:hover { background: var(--ink-mid); }
 
-/* floating cat & lion icons */
+/* floating cat & lion icons (corner stamp) */
 .float-icons {
   position: fixed;
   bottom: 14px;
@@ -743,39 +778,41 @@ body::after {
   display: flex;
   gap: 18px;
   z-index: 90;
-  opacity: 0.35;
+  opacity: 0.28;
   pointer-events: none;
 }
 .float-icons svg {
   width: 22px;
   height: 22px;
-  stroke: var(--ink-mid);
-  fill: none;
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  color: var(--ink-mid);
 }
 
 /* mobile */
 @media (max-width: 768px) {
-  #selection { padding: 22px 18px 50px; }
-  .frame-top { flex-direction: column; gap: 16px; }
+  #selection { padding: 24px 18px 40px; }
+  .frame-top { flex-direction: column; gap: 16px; align-items: flex-start; }
   .frame-right { align-items: flex-start; text-align: left; }
-  .strip-meta { width: 70px; gap: 8px; }
-  .strip-icon { width: 32px; }
+  .strip-meta { width: 64px; gap: 6px; }
+  .strip-icon { width: 22px; height: 20px; }
   .strip-num { font-size: 11px; }
-  .strip-banner::before { font-size: 16px; bottom: 6px; left: 10px; }
+  .main-title h1 { font-size: 44px; }
   .quote { font-size: 22px; }
   .quote::before, .quote::after { margin: 0 8px; }
-  .display { grid-template-columns: 46px 1fr 46px; }
-  .nav-arrow { width: 44px; height: 44px; font-size: 20px; }
+  .strips { gap: 18px; }
+  .footer-info { flex-direction: column; align-items: flex-start; gap: 18px; margin-top: 40px; }
+
+  #gallery { padding: 22px 16px 22px; }
+  .display { grid-template-columns: 40px 1fr 40px; }
+  .nav-arrow { width: 40px; height: 40px; font-size: 18px; }
   .side-text { display: none; }
-  .item-desc { display: none; }
+  .item-desc { position: static; max-width: 100%; transform: none; margin-top: 12px; border: none; text-align: center; padding: 0; animation: none; opacity: 1; }
   .image-frame img { max-height: 50vh; }
-  .bg-text { font-size: 56px; }
-  .footer-info { flex-direction: column; align-items: flex-start; gap: 18px; }
   .gallery-bottom { flex-direction: column; align-items: flex-start; gap: 18px; }
   .counter-block { align-items: flex-start; }
+  .dots { justify-content: flex-start; }
+  .chapter-bar .ch-title { font-size: 30px; gap: 12px; }
+  .chapter-bar .ch-title::before,
+  .chapter-bar .ch-title::after { width: 30px; }
 }
 
 </style>
@@ -790,7 +827,7 @@ body::after {
   <div class="frame-top">
     <div class="brand-box">
       <span class="brand-tag">ZUZU · COMMUNITY</span>
-      <span class="brand-sub">Birthday Celebration<br>For the Cat &amp; the Lion</span>
+      <span class="brand-sub">Birthday Celebration<br>For the Cat &amp; the Lion ♡</span>
       <div class="color-swatches">
         <div class="swatch f1"></div>
         <div class="swatch f2"></div>
@@ -801,7 +838,7 @@ body::after {
     <div class="frame-right">
       <div class="year-mark">
         <span class="glyph">
-          <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg width="12" height="12" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </span>
         <span>05.24</span>
       </div>
@@ -821,6 +858,8 @@ body::after {
   <div class="main-title">
     <h1>C&nbsp;L&nbsp;O&nbsp;S<span class="ast">✦</span>E&nbsp;T</h1>
     <div class="sub">A · WARDROBE · GIFTED · BY · FRIENDS</div>
+    <span class="sparkle" style="top: -10px; left: calc(50% + 100px);">✦</span>
+    <span class="sparkle" style="top: 30px; left: calc(50% - 130px); animation-delay: 1.2s;">·</span>
   </div>
 
   <p class="quote">open the doors — pick a friend to dress</p>
@@ -830,12 +869,12 @@ body::after {
 
   <div class="footer-info">
     <div class="footer-left">
-      Happy birthday<br>to our cat &amp; lion ♡
+      Happy birthday<br>to our cat &amp; lion <span class="heart">♡</span>
       <small>— 05.24.2026 · From ZUZU comm.</small>
     </div>
     <div class="barcode-block">
       <svg viewBox="0 0 130 34" preserveAspectRatio="none" aria-hidden="true">
-        <g fill="#14140f">
+        <g fill="#1a1812">
           <rect x="0" y="0" width="2" height="34"/><rect x="4" y="0" width="1" height="34"/>
           <rect x="7" y="0" width="3" height="34"/><rect x="12" y="0" width="1" height="34"/>
           <rect x="15" y="0" width="2" height="34"/><rect x="20" y="0" width="1" height="34"/>
@@ -877,28 +916,30 @@ body::after {
       Back to closet
     </button>
     <div class="frame-right">
-      <div class="year-mark" style="font-size:32px;">
-        <span class="glyph" style="width:28px;height:28px;">
-          <svg width="11" height="11" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="year-mark" style="font-size:26px;">
+        <span class="glyph" style="width:24px;height:24px;">
+          <svg width="10" height="10" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </span>
-        <span id="charLabel">A</span>
+        <span>05.24</span>
       </div>
       <div class="year-sub" id="charSubLabel">CHAPTER · ONE</div>
     </div>
   </div>
 
-  <div class="bg-text" id="bgText">WARDROBE</div>
+  <div class="chapter-bar">
+    <div class="ch-title" id="chTitle">Chapter</div>
+    <div class="ch-sub" id="chSub">ZUZU · WARDROBE · GIFT</div>
+  </div>
 
   <div class="display">
     <button class="nav-arrow" id="prevBtn" aria-label="previous">‹</button>
 
     <div class="image-holder">
-      <div class="side-text left" id="sideLeft">ZUZU · COLLECTION · 2026</div>
-      <div class="side-text right" id="sideRight">N°<span id="sideNum">01</span> · CH<span id="sideChap">A</span></div>
+      <div class="side-text left">ZUZU · GIFT · 2026</div>
+      <div class="side-text right">N°<span id="sideNum">01</span></div>
 
       <div class="image-frame" id="imageFrame">
         <img id="mainImage" src="" alt="">
-        <div class="item-title" id="itemTitle"></div>
       </div>
       <div class="item-desc" id="itemDesc"></div>
     </div>
@@ -906,9 +947,14 @@ body::after {
     <button class="nav-arrow" id="nextBtn" aria-label="next">›</button>
   </div>
 
+  <div class="image-meta">
+    <div class="item-title" id="itemTitle"></div>
+    <div class="item-artist" id="itemArtist"></div>
+  </div>
+
   <div class="gallery-bottom">
     <div class="gallery-bottom-left">
-      Happy birthday ♡
+      Happy birthday <span class="heart">♡</span>
       <small>05.24.2026 · From ZUZU comm.</small>
     </div>
     <div class="counter-block">
@@ -921,7 +967,7 @@ body::after {
     </div>
   </div>
 
-  <span class="corner-tick ct-tl" id="cornerChapter">CH · A</span>
+  <span class="corner-tick ct-tl">CH.<span id="cornerCh">A</span></span>
   <span class="corner-tick ct-tr">N°·05·24</span>
 </section>
 
@@ -929,112 +975,143 @@ body::after {
 <!-- floating cat & lion icons -->
 <div class="float-icons">
   <!-- cat -->
-  <svg viewBox="0 0 28 28">
-    <path d="M6 5 L10 10 M22 5 L18 10 M6 5 Q6 14 14 14 Q22 14 22 5"/>
-    <circle cx="11" cy="13" r="0.6" fill="currentColor"/>
-    <circle cx="17" cy="13" r="0.6" fill="currentColor"/>
-    <path d="M13 16 q1 1.2 2 0"/>
-    <path d="M14 14 v2"/>
-    <path d="M10 18 q4 4 8 0"/>
+  <svg viewBox="0 0 28 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 7 L7 3 L10 8"/>
+    <path d="M23 7 L21 3 L18 8"/>
+    <path d="M5 7 Q4 16 14 17 Q24 16 23 7"/>
+    <circle cx="11" cy="11" r="0.6" fill="currentColor"/>
+    <circle cx="17" cy="11" r="0.6" fill="currentColor"/>
+    <path d="M13.5 13.5 L14 14 L14.5 13.5"/>
+    <path d="M7 13 L3 12 M7 14 L3 14.5"/>
+    <path d="M21 13 L25 12 M21 14 L25 14.5"/>
   </svg>
   <!-- lion -->
-  <svg viewBox="0 0 28 28">
-    <circle cx="14" cy="14" r="5"/>
-    <path d="M14 4 v3 M19 5 l-1.4 2.6 M23 9 l-2.6 1.4 M24 14 l-3 0 M23 19 l-2.6 -1.4 M19 23 l-1.4 -2.6 M14 24 v-3 M9 23 l1.4 -2.6 M5 19 l2.6 -1.4 M4 14 l3 0 M5 9 l2.6 1.4 M9 5 l1.4 2.6"/>
-    <circle cx="12" cy="13" r="0.6" fill="currentColor"/>
-    <circle cx="16" cy="13" r="0.6" fill="currentColor"/>
-    <path d="M13 16 q1 0.8 2 0"/>
+  <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 3 q1.5 0.5 1 2 M18 4 q1.5 1.5 0 3 M22 6 q2 0.5 0.5 2.5 M24 10 q2 1.5 0 3 M24 16 q2 1.5 0 3 M22 21 q1.5 1.5 -0.5 2.5 M18 24 q0 2 -1.5 1.5 M14 25 q-2 1 -3 -1 M9 24 q-2 0 -2 -1.5 M5 21 q-2 0 -1 -2 M3 16 q-2 -1 0 -3 M3 11 q-2 -1 0 -3 M5 6 q-1.5 -1.5 0.5 -2.5 M9 4 q0 -2 1.5 -1.5 M14 3"/>
+    <circle cx="14" cy="14" r="5.5"/>
+    <circle cx="12" cy="13" r="0.55" fill="currentColor"/>
+    <circle cx="16" cy="13" r="0.55" fill="currentColor"/>
+    <path d="M13.3 15.5 L14 16 L14.7 15.5"/>
+    <path d="M14 16 q-1 1 -2 0.5 M14 16 q1 1 2 0.5"/>
   </svg>
 </div>
 
 
+<!-- SVG defs for icon reuse -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- cute cat -->
+    <symbol id="i-cat" viewBox="0 0 28 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 7 L7 3 L10 8"/>
+        <path d="M23 7 L21 3 L18 8"/>
+        <path d="M5 7 Q4 16 14 17 Q24 16 23 7"/>
+        <circle cx="11" cy="11" r="0.6" fill="currentColor"/>
+        <circle cx="17" cy="11" r="0.6" fill="currentColor"/>
+        <path d="M13.5 13.5 L14 14 L14.5 13.5"/>
+        <path d="M7 13 L3 12 M7 14 L3 14.5"/>
+        <path d="M21 13 L25 12 M21 14 L25 14.5"/>
+      </g>
+    </symbol>
+    <!-- cute lion -->
+    <symbol id="i-lion" viewBox="0 0 28 28">
+      <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 3 q1.5 0.5 1 2 M18 4 q1.5 1.5 0 3 M22 6 q2 0.5 0.5 2.5 M24 10 q2 1.5 0 3 M24 16 q2 1.5 0 3 M22 21 q1.5 1.5 -0.5 2.5 M18 24 q0 2 -1.5 1.5 M14 25 q-2 1 -3 -1 M9 24 q-2 0 -2 -1.5 M5 21 q-2 0 -1 -2 M3 16 q-2 -1 0 -3 M3 11 q-2 -1 0 -3 M5 6 q-1.5 -1.5 0.5 -2.5 M9 4 q0 -2 1.5 -1.5"/>
+        <circle cx="14" cy="14" r="5.5"/>
+        <circle cx="12" cy="13" r="0.55" fill="currentColor"/>
+        <circle cx="16" cy="13" r="0.55" fill="currentColor"/>
+        <path d="M13.3 15.5 L14 16 L14.7 15.5"/>
+        <path d="M14 16 q-1 1 -2 0.5 M14 16 q1 1 2 0.5"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+
 <script>
 /* =====================================================
-   EDITABLE DATA — put your PNG urls / titles here
-   ・cover    : the wide banner for the selection screen
-   ・items    : the vertical clothing images
-   ・title and description are OPTIONAL — leave '' if none
-   ・bgWord   : the giant watermark word shown in gallery
-   ・accent   : tint color used on title underlines etc.
+   EDITABLE DATA  —  edit only this block
+   ・cover       : the 1920x900 banner for the selection screen
+   ・name        : chapter title shown at top of gallery
+   ・icon        : 'cat' or 'lion'  (a,b = cat / c,d = lion)
+   ・items[].src         : the vertical clothing image
+   ・items[].title       : (optional) handwritten title under image
+   ・items[].description : (optional) italic side description
+   ・items[].artist      : (optional) artist credit, shown small
+                          under the image  (replaces old bgWord)
+   The number after the icon is auto-calculated from items.length
    ===================================================== */
 
 const DATA = {
   a: {
-    cover:    '00a.png',
-    label:    'A',
-    name:     'CHAPTER · ONE',
-    bgWord:   'C·O·U·T·U·R·E',
-    accent:   'var(--accent-a)',
+    cover:  '00a.png',
+    name:   'Chapter One',
+    icon:   'cat',
+    accent: 'var(--accent-a)',
     items: [
-      { src: 'a1.png', title: '', description: '' },
-      { src: 'a2.png', title: '', description: '' },
-      { src: 'a3.png', title: '', description: '' },
-      { src: 'a4.png', title: '', description: '' },
-      { src: 'a5.png', title: '', description: '' },
-      { src: 'a6.png', title: '', description: '' },
-      { src: 'a7.png', title: '', description: '' },
-      { src: 'a8.png', title: '', description: '' }
+      { src: 'a1.png', title: '', description: '', artist: '' },
+      { src: 'a2.png', title: '', description: '', artist: '' },
+      { src: 'a3.png', title: '', description: '', artist: '' },
+      { src: 'a4.png', title: '', description: '', artist: '' },
+      { src: 'a5.png', title: '', description: '', artist: '' },
+      { src: 'a6.png', title: '', description: '', artist: '' },
+      { src: 'a7.png', title: '', description: '', artist: '' },
+      { src: 'a8.png', title: '', description: '', artist: '' }
     ]
   },
 
   b: {
-    cover:    '00b.png',
-    label:    'B',
-    name:     'CHAPTER · TWO',
-    bgWord:   'E·N·S·E·M·B·L·E',
-    accent:   'var(--accent-b)',
+    cover:  '00b.png',
+    name:   'Chapter Two',
+    icon:   'cat',
+    accent: 'var(--accent-b)',
     items: [
-      { src: 'b1.png', title: '', description: '' },
-      { src: 'b2.png', title: '', description: '' },
-      { src: 'b3.png', title: '', description: '' },
-      { src: 'b4.png', title: '', description: '' },
-      { src: 'b5.png', title: '', description: '' }
+      { src: 'b1.png', title: '', description: '', artist: '' },
+      { src: 'b2.png', title: '', description: '', artist: '' },
+      { src: 'b3.png', title: '', description: '', artist: '' },
+      { src: 'b4.png', title: '', description: '', artist: '' },
+      { src: 'b5.png', title: '', description: '', artist: '' }
     ]
   },
 
   c: {
-    cover:    '00c.png',
-    label:    'C',
-    name:     'CHAPTER · THREE',
-    bgWord:   'F·E·L·I·N·E',
-    accent:   'var(--accent-c)',
+    cover:  '00c.png',
+    name:   'Chapter Three',
+    icon:   'lion',
+    accent: 'var(--accent-c)',
     items: [
-      { src: 'c1.png', title: '', description: '' },
-      { src: 'c2.png', title: '', description: '' },
-      { src: 'c3.png', title: '', description: '' },
-      { src: 'c4.png', title: '', description: '' },
-      { src: 'c5.png', title: '', description: '' },
-      { src: 'c6.png', title: '', description: '' },
-      { src: 'c7.png', title: '', description: '' }
+      { src: 'c1.png', title: '', description: '', artist: '' },
+      { src: 'c2.png', title: '', description: '', artist: '' },
+      { src: 'c3.png', title: '', description: '', artist: '' },
+      { src: 'c4.png', title: '', description: '', artist: '' },
+      { src: 'c5.png', title: '', description: '', artist: '' },
+      { src: 'c6.png', title: '', description: '', artist: '' },
+      { src: 'c7.png', title: '', description: '', artist: '' }
     ]
   },
 
   d: {
-    cover:    '00d.png',
-    label:    'D',
-    name:     'CHAPTER · FOUR',
-    bgWord:   'R·E·G·A·L',
-    accent:   'var(--accent-d)',
+    cover:  '00d.png',
+    name:   'Chapter Four',
+    icon:   'lion',
+    accent: 'var(--accent-d)',
     items: [
-      { src: 'd1.png',  title: '', description: '' },
-      { src: 'd2.png',  title: '', description: '' },
-      { src: 'd3.png',  title: '', description: '' },
-      { src: 'd4.png',  title: '', description: '' },
-      { src: 'd5.png',  title: '', description: '' },
-      { src: 'd6.png',  title: '', description: '' },
-      { src: 'd7.png',  title: '', description: '' },
-      { src: 'd8.png',  title: '', description: '' },
-      { src: 'd9.png',  title: '', description: '' },
-      { src: 'd10.png', title: '', description: '' }
+      { src: 'd1.png',  title: '', description: '', artist: '' },
+      { src: 'd2.png',  title: '', description: '', artist: '' },
+      { src: 'd3.png',  title: '', description: '', artist: '' },
+      { src: 'd4.png',  title: '', description: '', artist: '' },
+      { src: 'd5.png',  title: '', description: '', artist: '' },
+      { src: 'd6.png',  title: '', description: '', artist: '' },
+      { src: 'd7.png',  title: '', description: '', artist: '' },
+      { src: 'd8.png',  title: '', description: '', artist: '' },
+      { src: 'd9.png',  title: '', description: '', artist: '' },
+      { src: 'd10.png', title: '', description: '', artist: '' }
     ]
   }
 };
 
-// small numeric tags shown next to each strip on the selection screen
-const NUMBER_LABEL = { a: '05', b: '12', c: '15', d: '18' };
-
 /* =====================================================
-   APP LOGIC (no need to edit below)
+   APP LOGIC  (no need to edit below)
    ===================================================== */
 
 const $ = sel => document.querySelector(sel);
@@ -1042,23 +1119,20 @@ const stripsEl = $('#strips');
 
 // build strips
 Object.entries(DATA).forEach(([key, char]) => {
+  const count = char.items.length;
+  const iconId = char.icon === 'lion' ? 'i-lion' : 'i-cat';
+
   const strip = document.createElement('div');
   strip.className = 'strip';
   strip.dataset.key = key;
   strip.innerHTML = `
     <div class="strip-meta">
-      <svg class="strip-icon" viewBox="0 0 44 16">
-        <circle cx="10" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1"/>
-        <circle cx="34" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1"/>
-        <line x1="16.5" y1="8" x2="27.5" y2="8" stroke="currentColor" stroke-width="1"/>
-        <line x1="2" y1="6" x2="3.5" y2="8" stroke="currentColor" stroke-width="1"/>
-        <line x1="40.5" y1="8" x2="42" y2="6" stroke="currentColor" stroke-width="1"/>
-      </svg>
-      <span class="strip-num">: ${NUMBER_LABEL[key]}</span>
+      <svg class="strip-icon"><use href="#${iconId}"/></svg>
+      <span class="strip-num">: ${String(count).padStart(2,'0')}</span>
     </div>
-    <div class="strip-banner" data-label="${char.label}">
-      <img src="${char.cover}" alt="${char.label} cover"
-           onerror="this.style.opacity='0';this.parentElement.style.background='linear-gradient(135deg,#d4cfc1 0%,#b8966a 100%)';">
+    <div class="strip-banner">
+      <img src="${char.cover}" alt="cover ${key}"
+           onerror="this.style.opacity='0';this.parentElement.style.background='linear-gradient(135deg,#e3ddcc 0%,#c89055 100%)';">
     </div>
   `;
   strip.addEventListener('click', () => openGallery(key));
@@ -1074,11 +1148,9 @@ function openGallery(key) {
   currentIdx = 0;
   const char = DATA[key];
 
-  $('#charLabel').textContent = char.label;
-  $('#charSubLabel').textContent = char.name;
-  $('#bgText').innerHTML = char.bgWord;
-  $('#sideChap').textContent = char.label;
-  $('#cornerChapter').textContent = 'CH · ' + char.label;
+  $('#charSubLabel').textContent = char.name.toUpperCase();
+  $('#chTitle').textContent = char.name;
+  $('#cornerCh').textContent = key.toUpperCase();
   $('#counterTotal').textContent = String(char.items.length).padStart(2, '0');
   document.documentElement.style.setProperty('--accent-cur', char.accent);
 
@@ -1113,20 +1185,14 @@ function updateView() {
 
   setTimeout(() => {
     $('#mainImage').src = item.src;
-    $('#mainImage').alt = char.label + ' — ' + (currentIdx + 1);
+    $('#mainImage').alt = `${char.name} — ${currentIdx + 1}`;
 
     $('#counterCur').textContent = String(currentIdx + 1).padStart(2, '0');
     $('#sideNum').textContent = String(currentIdx + 1).padStart(2, '0');
 
-    // optional title
-    const titleEl = $('#itemTitle');
-    titleEl.textContent = item.title || '';
-    titleEl.style.display = item.title ? '' : 'none';
-
-    // optional description
-    const descEl = $('#itemDesc');
-    descEl.textContent = item.description || '';
-    descEl.style.display = item.description ? '' : 'none';
+    $('#itemTitle').textContent = item.title || '';
+    $('#itemArtist').textContent = item.artist ? `illustration by ${item.artist}` : '';
+    $('#itemDesc').textContent = item.description || '';
 
     // dot state
     document.querySelectorAll('#dots .dot').forEach((d, i) => {
@@ -1137,15 +1203,8 @@ function updateView() {
     $('#prevBtn').disabled = currentIdx === 0;
     $('#nextBtn').disabled = currentIdx === char.items.length - 1;
 
-    // re-trigger title animation
-    if (item.title) {
-      titleEl.style.animation = 'none';
-      void titleEl.offsetWidth;
-      titleEl.style.animation = '';
-    }
-
     requestAnimationFrame(() => frame.classList.remove('changing'));
-  }, 250);
+  }, 220);
 }
 
 $('#prevBtn').addEventListener('click', () => {
@@ -1157,7 +1216,7 @@ $('#nextBtn').addEventListener('click', () => {
 });
 $('#backBtn').addEventListener('click', closeGallery);
 
-// keyboard nav
+// keyboard
 document.addEventListener('keydown', e => {
   if (!$('#gallery').classList.contains('active')) return;
   if (e.key === 'ArrowLeft')  $('#prevBtn').click();
