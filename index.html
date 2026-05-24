@@ -108,13 +108,13 @@ body::after {
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--ink);
-  padding: 0 0 10px;
+  padding: clamp(2px, 0.4vh, 6px) 0 clamp(10px, 1.8vh, 18px);
 }
 
 .brand-box {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: clamp(3px, 0.6vh, 7px);
   max-width: 280px;
 }
 .brand-tag {
@@ -122,22 +122,26 @@ body::after {
   background: var(--ink);
   color: var(--paper);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-size: clamp(8.5px, 1vh, 10px);
   letter-spacing: 0.22em;
-  padding: 3px 9px;
+  padding: clamp(2px, 0.4vh, 4px) clamp(7px, 0.7vw, 10px);
   text-transform: uppercase;
   width: fit-content;
 }
 .brand-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 8.8px;
+  font-size: clamp(7.5px, 0.9vh, 9.5px);
   letter-spacing: 0.18em;
   color: var(--ink-mid);
   text-transform: uppercase;
   line-height: 1.4;
 }
-.color-swatches { display: flex; gap: 3px; margin-top: 2px; }
-.swatch { width: 11px; height: 11px; border: 1px solid var(--ink); }
+.color-swatches { display: flex; gap: 3px; margin-top: clamp(1px, 0.3vh, 3px); }
+.swatch {
+  width: clamp(9px, 1.3vh, 12px);
+  height: clamp(9px, 1.3vh, 12px);
+  border: 1px solid var(--ink);
+}
 .swatch.f1 { background: var(--ink); }
 .swatch.f2 { background: var(--paper); }
 .swatch.f3 { background: var(--accent-a); border-color: var(--accent-a); }
@@ -148,11 +152,11 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: clamp(2px, 0.5vh, 6px);
 }
 .year-mark {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(32px, 3vw, 40px);
+  font-size: clamp(26px, 3.8vh, 42px);
   line-height: 1;
   letter-spacing: -0.01em;
   display: flex;
@@ -161,16 +165,25 @@ body::after {
   padding: 0;
 }
 .year-mark .glyph {
-  width: 26px;
-  height: 26px;
+  width: clamp(20px, 2.8vh, 28px);
+  height: clamp(20px, 2.8vh, 28px);
   border: 1.4px solid var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+.year-mark.compact {
+  font-size: clamp(20px, 2.6vh, 28px);
+  gap: 6px;
+}
+.year-mark.compact .glyph {
+  width: clamp(17px, 2.2vh, 22px);
+  height: clamp(17px, 2.2vh, 22px);
+  border-width: 1.2px;
+}
 .year-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 8.8px;
+  font-size: clamp(7.5px, 0.9vh, 9.5px);
   letter-spacing: 0.22em;
   color: var(--ink-mid);
   text-transform: uppercase;
@@ -417,7 +430,7 @@ body::after {
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--ink);
-  padding-bottom: 14px;
+  padding: clamp(2px, 0.4vh, 6px) 0 clamp(10px, 1.6vh, 16px);
 }
 .back-btn {
   display: inline-flex;
@@ -977,8 +990,8 @@ body::after {
       Back to closet
     </button>
     <div class="frame-right">
-      <div class="year-mark" style="font-size:24px;">
-        <span class="glyph" style="width:22px;height:22px;">
+      <div class="year-mark compact">
+        <span class="glyph">
           <svg width="9" height="9" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </span>
         <span>05.24</span>
