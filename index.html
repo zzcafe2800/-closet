@@ -1,490 +1,1186 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wardrobe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZUZU · CLOSET · 05.24</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Anton&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* =====================================================
+   ZUZU · CLOSET  —  05.24 birthday gift site
+   Edit the DATA object at the bottom of <script>
+   to add your image URLs, titles and descriptions.
+   ===================================================== */
 
-  html, body {
-    height: 100%;
-    background: #f4efe6;
-    font-family: 'Georgia', 'Hiragino Mincho ProN', serif;
-    overflow: hidden;
-    color: #3a2e25;
-  }
+:root {
+  --bg:        #f4f1e8;
+  --bg-soft:   #efece2;
+  --bg-warm:   #e8e2d1;
+  --paper:     #fbf9f2;
+  --ink:       #14140f;
+  --ink-mid:   #4a4540;
+  --ink-soft:  #8a857c;
+  --line:      #c8c3b6;
+  --line-soft: #ddd8c9;
 
-  /* ===== 共通：画面切り替え ===== */
-  .screen {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.7s ease;
-  }
-  .screen.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  --accent-a:  #7a99b4;   /* cool blue */
+  --accent-b:  #c89a78;   /* warm tan */
+  --accent-c:  #b87a8a;   /* rose */
+  --accent-d:  #b08a4a;   /* amber lion */
 
-  /* ===== ① 選択画面 ===== */
-  #selectScreen {
-    background: radial-gradient(ellipse at center, #faf6ee 0%, #ece4d4 100%);
-    gap: 8vw;
-    flex-wrap: wrap;
-  }
+  --shadow-1:  0 1px 2px rgba(20,20,15,0.04), 0 8px 30px rgba(20,20,15,0.08);
+  --shadow-2:  0 2px 4px rgba(20,20,15,0.06), 0 22px 60px rgba(20,20,15,0.15);
+}
 
-  .pick {
-    width: 28vw;
-    max-width: 280px;
-    min-width: 180px;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    background: #fffaf1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 20px 40px -20px rgba(80, 60, 40, 0.25);
-    transition: transform 0.5s cubic-bezier(.2,.8,.2,1), box-shadow 0.5s ease;
-  }
-  .pick:hover {
-    transform: translateY(-8px) scale(1.03);
-    box-shadow: 0 30px 50px -20px rgba(80, 60, 40, 0.35);
-  }
-  .pick svg {
-    width: 55%;
-    height: 55%;
-    stroke: #3a2e25;
-    fill: none;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  /* ===== ② クローゼット画面 ===== */
-  .closet {
-    flex-direction: column;
-    background: linear-gradient(180deg, #f0e8d8 0%, #e0d5c0 50%, #c8b89e 100%);
-    padding: 0;
-  }
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Cormorant', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
 
-  .rack-wrap {
-    width: 100%;
-    height: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    display: flex;
-    align-items: center;
-    scrollbar-width: thin;
-    scrollbar-color: #b8a890 transparent;
-  }
-  .rack-wrap::-webkit-scrollbar { height: 8px; }
-  .rack-wrap::-webkit-scrollbar-thumb { background: #b8a890; border-radius: 4px; }
-  .rack-wrap::-webkit-scrollbar-track { background: transparent; }
+/* paper grain */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  z-index: 999;
+}
 
-  .rack {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    padding: 14vh 12vw 14vh 12vw;
-    min-width: max-content;
-  }
+/* faint grid lines bg */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(20,20,15,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  z-index: 0;
+}
 
-  /* クローゼットの棒 */
-  .rack::before {
-    content: '';
-    position: absolute;
-    top: calc(14vh + 18px);
-    left: 8vw;
-    right: 8vw;
-    height: 4px;
-    background: linear-gradient(180deg, #d8c8b0 0%, #8a7560 45%, #5a4536 100%);
-    border-radius: 2px;
-    box-shadow: 0 3px 6px rgba(40, 30, 20, 0.25), inset 0 1px 0 rgba(255,255,255,0.3);
-    z-index: 0;
-  }
+/* =========================
+   SCREEN SWITCHING
+   ========================= */
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .55s ease, transform .55s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.screen.active {
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  z-index: 2;
+}
 
-  .hang {
-    position: relative;
-    flex: 0 0 220px;
-    margin-left: -115px;
-    cursor: pointer;
-    transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
-    z-index: 1;
-  }
-  .hang:first-child { margin-left: 0; }
-  .hang:nth-child(odd)  { transform: rotate(-1.2deg); }
-  .hang:nth-child(even) { transform: rotate(1.2deg); }
+/* =========================
+   SELECTION SCREEN
+   ========================= */
+#selection {
+  padding: 32px clamp(20px, 4vw, 56px) 70px;
+  position: relative;
+}
 
-  .hang:hover {
-    transform: translateY(-22px) rotate(0deg) !important;
-    z-index: 999;
-  }
+/* top frame  */
+.frame-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
 
-  .hanger {
-    width: 110px;
-    height: 55px;
-    display: block;
-    margin: 0 auto -6px;
-    stroke: #2e241c;
-    stroke-width: 1.6;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
-    position: relative;
-    z-index: 2;
-  }
+.brand-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 280px;
+}
+.brand-tag {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  padding: 4px 10px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+.brand-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mid);
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.color-swatches {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+.swatch {
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--ink);
+}
+.swatch.f1 { background: var(--ink); }
+.swatch.f2 { background: var(--paper); }
+.swatch.f3 { background: var(--accent-a); border-color: var(--accent-a); }
+.swatch.f4 { background: var(--accent-d); border-color: var(--accent-d); }
 
-  .cloth {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    border-radius: 3px;
-    box-shadow:
-      0 14px 28px -10px rgba(60, 45, 30, 0.45),
-      0 2px 4px rgba(60, 45, 30, 0.15);
-    background: #fffaf1;
-    position: relative;
-  }
-  .cloth::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.08) 100%);
-    pointer-events: none;
-  }
-  .cloth img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+.frame-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.year-mark {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(40px, 5vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.year-mark .glyph {
+  width: 36px;
+  height: 36px;
+  border: 1.4px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.year-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: var(--ink-mid);
+  text-transform: uppercase;
+}
 
-  /* 戻るボタン */
-  .back {
-    position: fixed;
-    top: 24px;
-    left: 24px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #fffaf1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 6px 16px -4px rgba(60, 45, 30, 0.35);
-    transition: transform 0.3s ease;
-    z-index: 50;
-    border: none;
-  }
-  .back:hover { transform: scale(1.08); }
-  .back svg {
-    width: 18px; height: 18px;
-    stroke: #3a2e25;
-    fill: none;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+/* hangers */
+.hangers {
+  display: flex;
+  justify-content: center;
+  gap: clamp(40px, 8vw, 90px);
+  margin: 28px 0 0;
+  position: relative;
+  z-index: 3;
+}
+.hangers svg {
+  width: 42px;
+  height: 30px;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  fill: none;
+  opacity: 0.7;
+  animation: hangerSway 6s ease-in-out infinite;
+  transform-origin: top center;
+}
+.hangers svg:nth-child(2) { animation-delay: -1.5s; }
+.hangers svg:nth-child(3) { animation-delay: -3s; }
+.hangers svg:nth-child(4) { animation-delay: -4.5s; }
+@keyframes hangerSway {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50%      { transform: rotate(1.2deg); }
+}
 
-  /* スクロールヒント */
-  .hint {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    opacity: 0.4;
-    pointer-events: none;
-    animation: slide 2s ease-in-out infinite;
-  }
-  .hint span {
-    width: 6px;
-    height: 6px;
-    background: #3a2e25;
-    border-radius: 50%;
-  }
-  @keyframes slide {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50%      { transform: translateX(-50%) translateY(-4px); }
-  }
+/* closet rod */
+.rod {
+  height: 1.5px;
+  background: var(--ink);
+  margin: -1px auto 36px;
+  width: 92%;
+  position: relative;
+}
+.rod::before, .rod::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--ink);
+  border-radius: 50%;
+}
+.rod::before { left: -3px; }
+.rod::after  { right: -3px; }
 
-  /* ===== ③ ライトボックス（拡大＋タイトル＋作者） ===== */
-  #lightbox {
-    position: fixed;
-    inset: 0;
-    background: rgba(28, 20, 14, 0.94);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-    padding: 6vh 6vw;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  #lightbox.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  #lightbox img {
-    max-width: 80vw;
-    max-height: 70vh;
-    object-fit: contain;
-    border-radius: 4px;
-    box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7);
-    transform: scale(0.96);
-    transition: transform 0.5s cubic-bezier(.2,.8,.2,1);
-  }
-  #lightbox.active img { transform: scale(1); }
+/* title */
+.main-title {
+  text-align: center;
+  margin-bottom: 8px;
+  position: relative;
+}
+.main-title h1 {
+  font-family: 'Italiana', serif;
+  font-size: clamp(54px, 10vw, 130px);
+  letter-spacing: 0.18em;
+  font-weight: 400;
+  line-height: 0.95;
+  display: inline-block;
+  position: relative;
+}
+.main-title h1 .ast {
+  font-family: 'Cormorant', serif;
+  font-size: 0.3em;
+  vertical-align: super;
+  letter-spacing: 0;
+  color: var(--accent-a);
+}
+.main-title .sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.55em;
+  color: var(--ink-mid);
+  margin-top: 12px;
+  text-transform: uppercase;
+}
 
-  .caption {
-    text-align: center;
-    color: #f4efe6;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
-  }
-  #lightbox.active .caption {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .caption .title {
-    font-size: 1.35rem;
-    letter-spacing: 0.08em;
-    font-weight: 400;
-    margin-bottom: 6px;
-  }
-  .caption .author {
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    opacity: 0.65;
-    font-style: italic;
-    text-transform: uppercase;
-  }
-  .caption .author:empty,
-  .caption .title:empty { display: none; }
+.quote {
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 26px;
+  color: var(--accent-a);
+  margin: 26px 0 56px;
+  font-weight: 400;
+  position: relative;
+}
+.quote::before, .quote::after {
+  content: '—';
+  margin: 0 14px;
+  color: var(--ink-soft);
+  font-family: 'Cormorant', serif;
+  font-size: 22px;
+}
 
-  /* 入場アニメーション */
-  .closet.active .hang {
-    animation: drop 0.7s cubic-bezier(.2,.8,.2,1) backwards;
-  }
-  .closet.active .hang:nth-child(1)  { animation-delay: 0.05s; }
-  .closet.active .hang:nth-child(2)  { animation-delay: 0.10s; }
-  .closet.active .hang:nth-child(3)  { animation-delay: 0.15s; }
-  .closet.active .hang:nth-child(4)  { animation-delay: 0.20s; }
-  .closet.active .hang:nth-child(5)  { animation-delay: 0.25s; }
-  .closet.active .hang:nth-child(6)  { animation-delay: 0.30s; }
-  .closet.active .hang:nth-child(7)  { animation-delay: 0.35s; }
-  .closet.active .hang:nth-child(8)  { animation-delay: 0.40s; }
-  .closet.active .hang:nth-child(n+9){ animation-delay: 0.45s; }
+/* strips */
+.strips {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vw, 34px);
+  max-width: 1140px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
 
-  @keyframes drop {
-    from { opacity: 0; transform: translateY(-30px) rotate(0); }
-  }
+.strip {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 36px);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: stripIn .8s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.strip:nth-child(1) { animation-delay: .15s; }
+.strip:nth-child(2) { animation-delay: .28s; flex-direction: row-reverse; transform: translateX(30px); }
+.strip:nth-child(3) { animation-delay: .41s; }
+.strip:nth-child(4) { animation-delay: .54s; flex-direction: row-reverse; transform: translateX(30px); }
+@keyframes stripIn { to { opacity: 1; transform: translateX(0); } }
 
-  #selectScreen.active .pick {
-    animation: fadeIn 0.8s ease backwards;
-  }
-  #selectScreen.active .pick:nth-child(1) { animation-delay: 0.1s; }
-  #selectScreen.active .pick:nth-child(2) { animation-delay: 0.3s; }
+.strip-meta {
+  flex-shrink: 0;
+  width: 130px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.strip:nth-child(even) .strip-meta { flex-direction: row-reverse; }
+.strip-icon { width: 44px; height: 16px; stroke: var(--ink-mid); stroke-width: 1; fill: none; }
+.strip-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mid);
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to   { opacity: 1; transform: scale(1); }
-  }
+.strip-banner {
+  flex: 1;
+  position: relative;
+  height: clamp(100px, 14vw, 160px);
+  overflow: hidden;
+  background: var(--bg-warm);
+  box-shadow: var(--shadow-1);
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s;
+}
+.strip-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .8s ease, filter .5s ease;
+  filter: grayscale(0.08) brightness(0.97);
+}
+.strip:hover .strip-banner {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-2);
+}
+.strip:hover .strip-banner img {
+  transform: scale(1.05);
+  filter: grayscale(0) brightness(1.02);
+}
 
-  /* スマホ調整 */
-  @media (max-width: 600px) {
-    .hang { flex: 0 0 160px; margin-left: -85px; }
-    .hanger { width: 85px; height: 45px; }
-    .rack { padding: 12vh 8vw; }
-    .rack::before { left: 5vw; right: 5vw; top: calc(12vh + 14px); }
-  }
+/* banner overlay label */
+.strip-banner::before {
+  content: attr(data-label);
+  position: absolute;
+  bottom: 10px;
+  left: 16px;
+  font-family: 'Italiana', serif;
+  font-size: clamp(20px, 2.5vw, 28px);
+  letter-spacing: 0.22em;
+  color: var(--paper);
+  text-shadow: 0 1px 12px rgba(0,0,0,0.4);
+  mix-blend-mode: difference;
+  z-index: 2;
+}
+.strip:nth-child(even) .strip-banner::before {
+  left: auto;
+  right: 16px;
+}
+
+.strip-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: none;
+}
+
+/* footer */
+.footer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: clamp(50px, 8vw, 90px);
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  gap: 30px;
+}
+.footer-left {
+  font-family: 'Caveat', cursive;
+  font-size: 22px;
+  color: var(--ink-mid);
+  line-height: 1.25;
+  max-width: 280px;
+}
+.footer-left small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+
+.barcode-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.barcode-block svg { height: 34px; }
+.barcode-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mid);
+}
+
+/* corner ticks */
+.corner-tick {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.ct-tl { top: 14px; left: 14px; }
+.ct-tr { top: 14px; right: 14px; }
+.ct-bl { bottom: 14px; left: 14px; }
+.ct-br { bottom: 14px; right: 14px; }
+
+/* =========================
+   GALLERY SCREEN
+   ========================= */
+#gallery {
+  padding: 28px clamp(20px, 4vw, 52px) 30px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, var(--paper) 0%, var(--bg) 60%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.gallery-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 16px;
+  margin-bottom: 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--ink-mid);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  padding: 6px 0;
+  transition: color .3s, transform .3s;
+}
+.back-btn:hover { color: var(--ink); transform: translateX(-3px); }
+.back-btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--ink-mid);
+  border-radius: 50%;
+  font-size: 12px;
+  transition: all .3s;
+}
+.back-btn:hover .back-btn-arrow {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* watermark big text */
+.bg-text {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(72px, 16vw, 220px);
+  letter-spacing: -0.02em;
+  line-height: 0.82;
+  color: var(--ink);
+  text-align: center;
+  margin-top: 18px;
+  margin-bottom: -10px;
+  position: relative;
+  z-index: 1;
+  transition: opacity .4s;
+}
+.bg-text .accent {
+  font-style: italic;
+  font-family: 'Cormorant', serif;
+  font-weight: 300;
+  letter-spacing: 0;
+}
+.bg-text .dot-mark {
+  display: inline-block;
+  width: 0.18em;
+  height: 0.18em;
+  background: currentColor;
+  border-radius: 50%;
+  vertical-align: 0.32em;
+  margin: 0 0.08em;
+}
+
+/* display */
+.display {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+  align-items: center;
+  position: relative;
+  padding: 16px 0;
+  min-height: 60vh;
+}
+
+.nav-arrow {
+  position: relative;
+  z-index: 5;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: 'Italiana', serif;
+  font-size: 24px;
+  color: var(--ink);
+  transition: all .35s cubic-bezier(.2,.8,.2,1);
+  justify-self: center;
+  letter-spacing: 0;
+}
+.nav-arrow:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+  transform: scale(1.08);
+}
+.nav-arrow:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.image-holder {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.image-frame {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity .35s ease;
+}
+.image-frame img {
+  max-height: 60vh;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 22px 50px rgba(20,20,15,0.18));
+  transition: opacity .35s ease, transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.image-frame.changing img {
+  opacity: 0;
+  transform: scale(0.97) translateY(8px);
+}
+
+/* vertical side text  */
+.side-text {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.45em;
+  color: var(--ink-mid);
+  pointer-events: none;
+  z-index: 2;
+  text-transform: uppercase;
+}
+.side-text.left {
+  left: 90px;
+  padding: 4px 0 4px 14px;
+  border-left: 1px solid var(--line);
+}
+.side-text.right {
+  right: 90px;
+  padding: 4px 14px 4px 0;
+  border-right: 1px solid var(--line);
+  text-align: right;
+}
+
+/* title floating (handwritten) */
+.item-title {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Caveat', cursive;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 600;
+  color: var(--accent-cur, var(--accent-a));
+  z-index: 5;
+  white-space: nowrap;
+  text-align: center;
+  text-shadow: 0 2px 16px rgba(255,250,240,0.9);
+  pointer-events: none;
+  opacity: 0;
+  animation: titleIn .6s ease forwards .25s;
+}
+@keyframes titleIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.item-title::before, .item-title::after {
+  content: '';
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  vertical-align: middle;
+  margin: 0 14px;
+  opacity: 0.4;
+}
+
+.item-desc {
+  position: absolute;
+  bottom: 60px;
+  right: 100px;
+  max-width: 220px;
+  font-family: 'Cormorant', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-mid);
+  line-height: 1.55;
+  z-index: 4;
+  text-align: right;
+  padding-right: 14px;
+  border-right: 1px solid var(--accent-cur, var(--accent-a));
+  opacity: 0;
+  animation: descIn .6s ease forwards .35s;
+}
+@keyframes descIn {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* bottom bar */
+.gallery-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  gap: 24px;
+}
+.gallery-bottom-left {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--ink-mid);
+  line-height: 1.2;
+}
+.gallery-bottom-left small {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.counter-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.counter-cur {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+  color: var(--ink);
+}
+.counter-sep {
+  font-family: 'Italiana', serif;
+  font-size: 28px;
+  color: var(--ink-soft);
+  margin: 0 6px;
+}
+.counter-total {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: var(--ink-mid);
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.dot {
+  width: 16px;
+  height: 2px;
+  background: var(--line);
+  transition: all .35s;
+  cursor: pointer;
+}
+.dot.active {
+  background: var(--ink);
+  width: 26px;
+}
+.dot:hover { background: var(--ink-mid); }
+
+/* floating cat & lion icons */
+.float-icons {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 18px;
+  z-index: 90;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.float-icons svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--ink-mid);
+  fill: none;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  #selection { padding: 22px 18px 50px; }
+  .frame-top { flex-direction: column; gap: 16px; }
+  .frame-right { align-items: flex-start; text-align: left; }
+  .strip-meta { width: 70px; gap: 8px; }
+  .strip-icon { width: 32px; }
+  .strip-num { font-size: 11px; }
+  .strip-banner::before { font-size: 16px; bottom: 6px; left: 10px; }
+  .quote { font-size: 22px; }
+  .quote::before, .quote::after { margin: 0 8px; }
+  .display { grid-template-columns: 46px 1fr 46px; }
+  .nav-arrow { width: 44px; height: 44px; font-size: 20px; }
+  .side-text { display: none; }
+  .item-desc { display: none; }
+  .image-frame img { max-height: 50vh; }
+  .bg-text { font-size: 56px; }
+  .footer-info { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .gallery-bottom { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .counter-block { align-items: flex-start; }
+}
+
 </style>
 </head>
 <body>
 
-<!-- ========== ① 選択画面：猫 or ライオン ========== -->
-<div id="selectScreen" class="screen active">
+<!-- ==================================================
+     SELECTION SCREEN
+     ================================================== -->
+<section id="selection" class="screen active">
 
-  <!-- 猫 -->
-  <div class="pick" onclick="openCloset('cat')">
-    <svg viewBox="0 0 100 100">
-      <path d="M 25 35 L 30 22 L 42 32 Q 50 30 58 32 L 70 22 L 75 35 Q 82 48 75 65 Q 65 80 50 80 Q 35 80 25 65 Q 18 48 25 35 Z"/>
-      <circle cx="40" cy="50" r="2" fill="#3a2e25" stroke="none"/>
-      <circle cx="60" cy="50" r="2" fill="#3a2e25" stroke="none"/>
-      <path d="M 48 60 L 50 62 L 52 60 Z" fill="#3a2e25" stroke="none"/>
-      <path d="M 50 62 Q 50 66 46 67 M 50 62 Q 50 66 54 67"/>
-      <path d="M 30 58 L 38 60 M 30 64 L 38 62"/>
-      <path d="M 70 58 L 62 60 M 70 64 L 62 62"/>
-    </svg>
+  <div class="frame-top">
+    <div class="brand-box">
+      <span class="brand-tag">ZUZU · COMMUNITY</span>
+      <span class="brand-sub">Birthday Celebration<br>For the Cat &amp; the Lion</span>
+      <div class="color-swatches">
+        <div class="swatch f1"></div>
+        <div class="swatch f2"></div>
+        <div class="swatch f3"></div>
+        <div class="swatch f4"></div>
+      </div>
+    </div>
+    <div class="frame-right">
+      <div class="year-mark">
+        <span class="glyph">
+          <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </span>
+        <span>05.24</span>
+      </div>
+      <div class="year-sub">A.D. 2026 · GIFT NO.05</div>
+    </div>
   </div>
 
-  <!-- ライオン -->
-  <div class="pick" onclick="openCloset('lion')">
-    <svg viewBox="0 0 100 100">
-      <path d="M 50 12 Q 60 14 64 20 Q 74 18 78 26 Q 86 30 84 40 Q 90 46 86 54 Q 90 64 82 68 Q 82 78 72 78 Q 66 86 56 82 Q 50 86 44 82 Q 34 86 28 78 Q 18 78 18 68 Q 10 64 14 54 Q 10 46 16 40 Q 14 30 22 26 Q 26 18 36 20 Q 40 14 50 12 Z"/>
-      <path d="M 35 42 Q 35 38 40 36 Q 50 34 60 36 Q 65 38 65 42 Q 68 50 65 58 Q 62 68 50 70 Q 38 68 35 58 Q 32 50 35 42 Z"/>
-      <circle cx="43" cy="50" r="2" fill="#3a2e25" stroke="none"/>
-      <circle cx="57" cy="50" r="2" fill="#3a2e25" stroke="none"/>
-      <path d="M 47 58 Q 50 60 53 58 Q 52 62 50 62 Q 48 62 47 58 Z" fill="#3a2e25" stroke="none"/>
-      <path d="M 50 62 L 50 64 M 50 64 Q 50 67 46 67 M 50 64 Q 50 67 54 67"/>
-    </svg>
+  <!-- hangers row -->
+  <div class="hangers">
+    <svg viewBox="0 0 42 30"><path d="M21 3 a3 3 0 1 1 3 3 L21 14 M4 26 L21 14 L38 26 L4 26z"/></svg>
+    <svg viewBox="0 0 42 30"><path d="M21 3 a3 3 0 1 1 3 3 L21 14 M4 26 L21 14 L38 26 L4 26z"/></svg>
+    <svg viewBox="0 0 42 30"><path d="M21 3 a3 3 0 1 1 3 3 L21 14 M4 26 L21 14 L38 26 L4 26z"/></svg>
+    <svg viewBox="0 0 42 30"><path d="M21 3 a3 3 0 1 1 3 3 L21 14 M4 26 L21 14 L38 26 L4 26z"/></svg>
+  </div>
+  <div class="rod"></div>
+
+  <div class="main-title">
+    <h1>C&nbsp;L&nbsp;O&nbsp;S<span class="ast">✦</span>E&nbsp;T</h1>
+    <div class="sub">A · WARDROBE · GIFTED · BY · FRIENDS</div>
   </div>
 
-</div>
+  <p class="quote">open the doors — pick a friend to dress</p>
 
+  <!-- strips populated by JS -->
+  <div class="strips" id="strips"></div>
 
-<!-- ========== ② 猫のクローゼット ========== -->
-<div id="catCloset" class="screen closet">
-  <button class="back" onclick="goBack()" aria-label="back">
-    <svg viewBox="0 0 24 24"><path d="M15 6 L9 12 L15 18"/></svg>
-  </button>
-  <div class="rack-wrap">
-    <div class="rack" id="catRack"></div>
+  <div class="footer-info">
+    <div class="footer-left">
+      Happy birthday<br>to our cat &amp; lion ♡
+      <small>— 05.24.2026 · From ZUZU comm.</small>
+    </div>
+    <div class="barcode-block">
+      <svg viewBox="0 0 130 34" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="#14140f">
+          <rect x="0" y="0" width="2" height="34"/><rect x="4" y="0" width="1" height="34"/>
+          <rect x="7" y="0" width="3" height="34"/><rect x="12" y="0" width="1" height="34"/>
+          <rect x="15" y="0" width="2" height="34"/><rect x="20" y="0" width="1" height="34"/>
+          <rect x="23" y="0" width="4" height="34"/><rect x="29" y="0" width="1" height="34"/>
+          <rect x="32" y="0" width="2" height="34"/><rect x="36" y="0" width="3" height="34"/>
+          <rect x="41" y="0" width="1" height="34"/><rect x="44" y="0" width="2" height="34"/>
+          <rect x="48" y="0" width="1" height="34"/><rect x="51" y="0" width="3" height="34"/>
+          <rect x="56" y="0" width="1" height="34"/><rect x="59" y="0" width="2" height="34"/>
+          <rect x="63" y="0" width="4" height="34"/><rect x="69" y="0" width="1" height="34"/>
+          <rect x="72" y="0" width="2" height="34"/><rect x="76" y="0" width="1" height="34"/>
+          <rect x="79" y="0" width="3" height="34"/><rect x="84" y="0" width="2" height="34"/>
+          <rect x="88" y="0" width="1" height="34"/><rect x="91" y="0" width="3" height="34"/>
+          <rect x="96" y="0" width="2" height="34"/><rect x="100" y="0" width="1" height="34"/>
+          <rect x="103" y="0" width="2" height="34"/><rect x="107" y="0" width="3" height="34"/>
+          <rect x="112" y="0" width="1" height="34"/><rect x="115" y="0" width="2" height="34"/>
+          <rect x="119" y="0" width="1" height="34"/><rect x="122" y="0" width="3" height="34"/>
+          <rect x="127" y="0" width="2" height="34"/>
+        </g>
+      </svg>
+      <span class="barcode-num">05242026 · ZZ</span>
+    </div>
   </div>
-  <div class="hint"><span></span><span></span><span></span></div>
-</div>
+
+  <span class="corner-tick ct-tl">— 01</span>
+  <span class="corner-tick ct-tr">N°·05·24</span>
+  <span class="corner-tick ct-bl">ED. 2026</span>
+  <span class="corner-tick ct-br">CLOSET // OPEN</span>
+</section>
 
 
-<!-- ========== ③ ライオンのクローゼット ========== -->
-<div id="lionCloset" class="screen closet">
-  <button class="back" onclick="goBack()" aria-label="back">
-    <svg viewBox="0 0 24 24"><path d="M15 6 L9 12 L15 18"/></svg>
-  </button>
-  <div class="rack-wrap">
-    <div class="rack" id="lionRack"></div>
+<!-- ==================================================
+     GALLERY SCREEN
+     ================================================== -->
+<section id="gallery" class="screen">
+
+  <div class="gallery-top">
+    <button class="back-btn" id="backBtn">
+      <span class="back-btn-arrow">‹</span>
+      Back to closet
+    </button>
+    <div class="frame-right">
+      <div class="year-mark" style="font-size:32px;">
+        <span class="glyph" style="width:28px;height:28px;">
+          <svg width="11" height="11" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </span>
+        <span id="charLabel">A</span>
+      </div>
+      <div class="year-sub" id="charSubLabel">CHAPTER · ONE</div>
+    </div>
   </div>
-  <div class="hint"><span></span><span></span><span></span></div>
-</div>
 
+  <div class="bg-text" id="bgText">WARDROBE</div>
 
-<!-- ========== ④ 拡大表示 ========== -->
-<div id="lightbox" onclick="closeLightbox()">
-  <img id="lightboxImg" src="" alt="">
-  <div class="caption">
-    <div class="title" id="lbTitle"></div>
-    <div class="author" id="lbAuthor"></div>
+  <div class="display">
+    <button class="nav-arrow" id="prevBtn" aria-label="previous">‹</button>
+
+    <div class="image-holder">
+      <div class="side-text left" id="sideLeft">ZUZU · COLLECTION · 2026</div>
+      <div class="side-text right" id="sideRight">N°<span id="sideNum">01</span> · CH<span id="sideChap">A</span></div>
+
+      <div class="image-frame" id="imageFrame">
+        <img id="mainImage" src="" alt="">
+        <div class="item-title" id="itemTitle"></div>
+      </div>
+      <div class="item-desc" id="itemDesc"></div>
+    </div>
+
+    <button class="nav-arrow" id="nextBtn" aria-label="next">›</button>
   </div>
+
+  <div class="gallery-bottom">
+    <div class="gallery-bottom-left">
+      Happy birthday ♡
+      <small>05.24.2026 · From ZUZU comm.</small>
+    </div>
+    <div class="counter-block">
+      <div class="counter">
+        <span class="counter-cur" id="counterCur">01</span>
+        <span class="counter-sep">/</span>
+        <span class="counter-total" id="counterTotal">08</span>
+      </div>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+
+  <span class="corner-tick ct-tl" id="cornerChapter">CH · A</span>
+  <span class="corner-tick ct-tr">N°·05·24</span>
+</section>
+
+
+<!-- floating cat & lion icons -->
+<div class="float-icons">
+  <!-- cat -->
+  <svg viewBox="0 0 28 28">
+    <path d="M6 5 L10 10 M22 5 L18 10 M6 5 Q6 14 14 14 Q22 14 22 5"/>
+    <circle cx="11" cy="13" r="0.6" fill="currentColor"/>
+    <circle cx="17" cy="13" r="0.6" fill="currentColor"/>
+    <path d="M13 16 q1 1.2 2 0"/>
+    <path d="M14 14 v2"/>
+    <path d="M10 18 q4 4 8 0"/>
+  </svg>
+  <!-- lion -->
+  <svg viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="5"/>
+    <path d="M14 4 v3 M19 5 l-1.4 2.6 M23 9 l-2.6 1.4 M24 14 l-3 0 M23 19 l-2.6 -1.4 M19 23 l-1.4 -2.6 M14 24 v-3 M9 23 l1.4 -2.6 M5 19 l2.6 -1.4 M4 14 l3 0 M5 9 l2.6 1.4 M9 5 l1.4 2.6"/>
+    <circle cx="12" cy="13" r="0.6" fill="currentColor"/>
+    <circle cx="16" cy="13" r="0.6" fill="currentColor"/>
+    <path d="M13 16 q1 0.8 2 0"/>
+  </svg>
 </div>
 
 
 <script>
-/* ============================================================
-   ▼▼▼ ここに服の情報を入れる ▼▼▼
-   url    : 画像のURL（例：cat1.png）
-   title  : タイトル（例：白いシャツ）
-   author : 作者名（例：田中）
-   ※ title や author は空文字 "" でもOK（表示されないだけ）
-   ※ 行を増やしたり減らしたりして枚数調整できます
-============================================================ */
+/* =====================================================
+   EDITABLE DATA — put your PNG urls / titles here
+   ・cover    : the wide banner for the selection screen
+   ・items    : the vertical clothing images
+   ・title and description are OPTIONAL — leave '' if none
+   ・bgWord   : the giant watermark word shown in gallery
+   ・accent   : tint color used on title underlines etc.
+   ===================================================== */
 
-const catWardrobe = [
-  { url: "cat1.png", title: "",  author: "" },
-  { url: "cat2.png", title: "",  author: "" },
-  { url: "cat3.png", title: "",  author: "" },
-  { url: "cat4.png", title: "",  author: "" },
-  { url: "cat5.png", title: "",  author: "" },
-  { url: "cat6.png", title: "",  author: "" },
-  { url: "cat7.png", title: "",  author: "" },
-  { url: "cat8.png", title: "",  author: "" },
-];
+const DATA = {
+  a: {
+    cover:    '00a.png',
+    label:    'A',
+    name:     'CHAPTER · ONE',
+    bgWord:   'C·O·U·T·U·R·E',
+    accent:   'var(--accent-a)',
+    items: [
+      { src: 'a1.png', title: '', description: '' },
+      { src: 'a2.png', title: '', description: '' },
+      { src: 'a3.png', title: '', description: '' },
+      { src: 'a4.png', title: '', description: '' },
+      { src: 'a5.png', title: '', description: '' },
+      { src: 'a6.png', title: '', description: '' },
+      { src: 'a7.png', title: '', description: '' },
+      { src: 'a8.png', title: '', description: '' }
+    ]
+  },
 
-const lionWardrobe = [
-  { url: "lion1.png", title: "",  author: "" },
-  { url: "lion2.png", title: "",  author: "" },
-  { url: "lion3.png", title: "",  author: "" },
-  { url: "lion4.png", title: "",  author: "" },
-  { url: "lion5.png", title: "",  author: "" },
-  { url: "lion6.png", title: "",  author: "" },
-  { url: "lion7.png", title: "",  author: "" },
-  { url: "lion8.png", title: "",  author: "" },
-];
+  b: {
+    cover:    '00b.png',
+    label:    'B',
+    name:     'CHAPTER · TWO',
+    bgWord:   'E·N·S·E·M·B·L·E',
+    accent:   'var(--accent-b)',
+    items: [
+      { src: 'b1.png', title: '', description: '' },
+      { src: 'b2.png', title: '', description: '' },
+      { src: 'b3.png', title: '', description: '' },
+      { src: 'b4.png', title: '', description: '' },
+      { src: 'b5.png', title: '', description: '' }
+    ]
+  },
 
-/* ============================================================
-   ▲▲▲ ここまで。下は触らなくてOK ▲▲▲
-============================================================ */
+  c: {
+    cover:    '00c.png',
+    label:    'C',
+    name:     'CHAPTER · THREE',
+    bgWord:   'F·E·L·I·N·E',
+    accent:   'var(--accent-c)',
+    items: [
+      { src: 'c1.png', title: '', description: '' },
+      { src: 'c2.png', title: '', description: '' },
+      { src: 'c3.png', title: '', description: '' },
+      { src: 'c4.png', title: '', description: '' },
+      { src: 'c5.png', title: '', description: '' },
+      { src: 'c6.png', title: '', description: '' },
+      { src: 'c7.png', title: '', description: '' }
+    ]
+  },
 
-
-// ハンガーSVG
-const HANGER = `
-  <svg class="hanger" viewBox="0 0 110 55">
-    <path d="M 55 6 Q 49 6 49 13 Q 49 19 55 22"/>
-    <line x1="55" y1="22" x2="55" y2="26"/>
-    <path d="M 55 26 L 15 48 L 95 48 Z"/>
-  </svg>`;
-
-// ラックを描画する
-function renderRack(containerId, items) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = items.map(item => `
-    <div class="hang">
-      ${HANGER}
-      <div class="cloth"><img src="${item.url}" alt=""></div>
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.hang').forEach((el, i) => {
-    el.addEventListener('click', () => {
-      const it = items[i];
-      showImage(it.url, it.title, it.author);
-    });
-  });
-}
-
-renderRack('catRack',  catWardrobe);
-renderRack('lionRack', lionWardrobe);
-
-
-// 画面切り替え
-const screens = {
-  select: document.getElementById('selectScreen'),
-  cat:    document.getElementById('catCloset'),
-  lion:   document.getElementById('lionCloset')
-};
-function show(key) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  screens[key].classList.add('active');
-}
-function openCloset(who) { show(who); }
-function goBack()        { show('select'); }
-
-
-// 拡大表示
-const lb       = document.getElementById('lightbox');
-const lbImg    = document.getElementById('lightboxImg');
-const lbTitle  = document.getElementById('lbTitle');
-const lbAuthor = document.getElementById('lbAuthor');
-
-function showImage(url, title, author) {
-  lbImg.src = url;
-  lbTitle.textContent  = title  || '';
-  lbAuthor.textContent = author || '';
-  lb.classList.add('active');
-}
-function closeLightbox() {
-  lb.classList.remove('active');
-}
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    if (lb.classList.contains('active')) closeLightbox();
-    else goBack();
+  d: {
+    cover:    '00d.png',
+    label:    'D',
+    name:     'CHAPTER · FOUR',
+    bgWord:   'R·E·G·A·L',
+    accent:   'var(--accent-d)',
+    items: [
+      { src: 'd1.png',  title: '', description: '' },
+      { src: 'd2.png',  title: '', description: '' },
+      { src: 'd3.png',  title: '', description: '' },
+      { src: 'd4.png',  title: '', description: '' },
+      { src: 'd5.png',  title: '', description: '' },
+      { src: 'd6.png',  title: '', description: '' },
+      { src: 'd7.png',  title: '', description: '' },
+      { src: 'd8.png',  title: '', description: '' },
+      { src: 'd9.png',  title: '', description: '' },
+      { src: 'd10.png', title: '', description: '' }
+    ]
   }
+};
+
+// small numeric tags shown next to each strip on the selection screen
+const NUMBER_LABEL = { a: '05', b: '12', c: '15', d: '18' };
+
+/* =====================================================
+   APP LOGIC (no need to edit below)
+   ===================================================== */
+
+const $ = sel => document.querySelector(sel);
+const stripsEl = $('#strips');
+
+// build strips
+Object.entries(DATA).forEach(([key, char]) => {
+  const strip = document.createElement('div');
+  strip.className = 'strip';
+  strip.dataset.key = key;
+  strip.innerHTML = `
+    <div class="strip-meta">
+      <svg class="strip-icon" viewBox="0 0 44 16">
+        <circle cx="10" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1"/>
+        <circle cx="34" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1"/>
+        <line x1="16.5" y1="8" x2="27.5" y2="8" stroke="currentColor" stroke-width="1"/>
+        <line x1="2" y1="6" x2="3.5" y2="8" stroke="currentColor" stroke-width="1"/>
+        <line x1="40.5" y1="8" x2="42" y2="6" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <span class="strip-num">: ${NUMBER_LABEL[key]}</span>
+    </div>
+    <div class="strip-banner" data-label="${char.label}">
+      <img src="${char.cover}" alt="${char.label} cover"
+           onerror="this.style.opacity='0';this.parentElement.style.background='linear-gradient(135deg,#d4cfc1 0%,#b8966a 100%)';">
+    </div>
+  `;
+  strip.addEventListener('click', () => openGallery(key));
+  stripsEl.appendChild(strip);
 });
+
+// gallery state
+let currentChar = null;
+let currentIdx = 0;
+
+function openGallery(key) {
+  currentChar = key;
+  currentIdx = 0;
+  const char = DATA[key];
+
+  $('#charLabel').textContent = char.label;
+  $('#charSubLabel').textContent = char.name;
+  $('#bgText').innerHTML = char.bgWord;
+  $('#sideChap').textContent = char.label;
+  $('#cornerChapter').textContent = 'CH · ' + char.label;
+  $('#counterTotal').textContent = String(char.items.length).padStart(2, '0');
+  document.documentElement.style.setProperty('--accent-cur', char.accent);
+
+  // build dot indicators
+  const dots = $('#dots');
+  dots.innerHTML = '';
+  char.items.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    if (i === 0) d.classList.add('active');
+    d.addEventListener('click', () => { currentIdx = i; updateView(); });
+    dots.appendChild(d);
+  });
+
+  $('#selection').classList.remove('active');
+  $('#gallery').classList.add('active');
+  window.scrollTo(0, 0);
+  updateView();
+}
+
+function closeGallery() {
+  $('#gallery').classList.remove('active');
+  $('#selection').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function updateView() {
+  const char = DATA[currentChar];
+  const item = char.items[currentIdx];
+  const frame = $('#imageFrame');
+  frame.classList.add('changing');
+
+  setTimeout(() => {
+    $('#mainImage').src = item.src;
+    $('#mainImage').alt = char.label + ' — ' + (currentIdx + 1);
+
+    $('#counterCur').textContent = String(currentIdx + 1).padStart(2, '0');
+    $('#sideNum').textContent = String(currentIdx + 1).padStart(2, '0');
+
+    // optional title
+    const titleEl = $('#itemTitle');
+    titleEl.textContent = item.title || '';
+    titleEl.style.display = item.title ? '' : 'none';
+
+    // optional description
+    const descEl = $('#itemDesc');
+    descEl.textContent = item.description || '';
+    descEl.style.display = item.description ? '' : 'none';
+
+    // dot state
+    document.querySelectorAll('#dots .dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentIdx);
+    });
+
+    // arrow disabled state (no loop)
+    $('#prevBtn').disabled = currentIdx === 0;
+    $('#nextBtn').disabled = currentIdx === char.items.length - 1;
+
+    // re-trigger title animation
+    if (item.title) {
+      titleEl.style.animation = 'none';
+      void titleEl.offsetWidth;
+      titleEl.style.animation = '';
+    }
+
+    requestAnimationFrame(() => frame.classList.remove('changing'));
+  }, 250);
+}
+
+$('#prevBtn').addEventListener('click', () => {
+  if (currentIdx > 0) { currentIdx--; updateView(); }
+});
+$('#nextBtn').addEventListener('click', () => {
+  const char = DATA[currentChar];
+  if (currentIdx < char.items.length - 1) { currentIdx++; updateView(); }
+});
+$('#backBtn').addEventListener('click', closeGallery);
+
+// keyboard nav
+document.addEventListener('keydown', e => {
+  if (!$('#gallery').classList.contains('active')) return;
+  if (e.key === 'ArrowLeft')  $('#prevBtn').click();
+  if (e.key === 'ArrowRight') $('#nextBtn').click();
+  if (e.key === 'Escape')     closeGallery();
+});
+
+// touch swipe
+let touchStartX = 0, touchStartY = 0;
+const galleryEl = $('#gallery');
+galleryEl.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+galleryEl.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    if (dx < 0) $('#nextBtn').click();
+    else        $('#prevBtn').click();
+  }
+}, { passive: true });
+
 </script>
 
 </body>
