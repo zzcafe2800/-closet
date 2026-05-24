@@ -108,13 +108,13 @@ body::after {
   justify-content: space-between;
   align-items: flex-start;
   border-bottom: 1px solid var(--ink);
-  padding: 2px 0 18px;
+  padding: 0 0 10px;
 }
 
 .brand-box {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   max-width: 280px;
 }
 .brand-tag {
@@ -122,22 +122,22 @@ body::after {
   background: var(--ink);
   color: var(--paper);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 9.5px;
   letter-spacing: 0.22em;
-  padding: 4px 10px;
+  padding: 3px 9px;
   text-transform: uppercase;
   width: fit-content;
 }
 .brand-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-size: 8.8px;
   letter-spacing: 0.18em;
   color: var(--ink-mid);
   text-transform: uppercase;
-  line-height: 1.5;
+  line-height: 1.4;
 }
-.color-swatches { display: flex; gap: 3px; margin-top: 4px; }
-.swatch { width: 13px; height: 13px; border: 1px solid var(--ink); }
+.color-swatches { display: flex; gap: 3px; margin-top: 2px; }
+.swatch { width: 11px; height: 11px; border: 1px solid var(--ink); }
 .swatch.f1 { background: var(--ink); }
 .swatch.f2 { background: var(--paper); }
 .swatch.f3 { background: var(--accent-a); border-color: var(--accent-a); }
@@ -148,21 +148,21 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 4px;
 }
 .year-mark {
   font-family: 'Anton', sans-serif;
-  font-size: clamp(38px, 3.6vw, 46px);
+  font-size: clamp(32px, 3vw, 40px);
   line-height: 1;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 2px 0;
+  gap: 7px;
+  padding: 0;
 }
 .year-mark .glyph {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border: 1.4px solid var(--ink);
   display: inline-flex;
   align-items: center;
@@ -170,7 +170,7 @@ body::after {
 }
 .year-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px;
+  font-size: 8.8px;
   letter-spacing: 0.22em;
   color: var(--ink-mid);
   text-transform: uppercase;
@@ -636,6 +636,54 @@ body::after {
 .item-artist::before { content: '— '; color: var(--ink-soft); }
 .item-artist::after  { content: ' —'; color: var(--ink-soft); }
 
+/* PC: hover-revealed comment over the image */
+.comment-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(253, 250, 242, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 9px 18px;
+  font-family: 'Cormorant', serif;
+  font-style: italic;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-align: center;
+  max-width: 78%;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: opacity .35s ease, transform .35s cubic-bezier(.2,.8,.2,1);
+  pointer-events: none;
+  z-index: 8;
+  box-shadow: 0 6px 22px rgba(26,24,18,0.10);
+}
+.comment-overlay::before {
+  content: '“';
+  display: block;
+  font-family: 'Italiana', serif;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 0.4;
+  color: var(--accent-cur, var(--accent-a));
+  margin-bottom: 2px;
+}
+.comment-overlay:empty { display: none; }
+.image-frame:hover .comment-overlay:not(:empty) {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* mobile: inline comment in image-meta whitespace */
+.comment-inline {
+  display: none;
+}
+.comment-inline:empty { display: none; }
+
 .item-desc {
   position: absolute;
   top: 50%;
@@ -785,10 +833,35 @@ body::after {
   .nav-arrow { width: 36px; height: 36px; font-size: 16px; }
   .side-text { display: none; }
   .item-desc { display: none; }
+  .comment-overlay { display: none; }
+  .comment-inline {
+    display: block;
+    font-family: 'Cormorant', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--ink-mid);
+    text-align: center;
+    line-height: 1.45;
+    padding: 3px 14px 0;
+    max-width: 340px;
+    letter-spacing: 0.02em;
+    margin: 0 auto;
+  }
+  .comment-inline:not(:empty)::before {
+    content: '· ';
+    color: var(--accent-cur, var(--accent-a));
+    font-style: normal;
+  }
+  .comment-inline:not(:empty)::after {
+    content: ' ·';
+    color: var(--accent-cur, var(--accent-a));
+    font-style: normal;
+  }
+  .comment-inline:empty { display: none; }
   .image-frame::before { font-size: 18px; }
   .item-title { font-size: 18px; }
   .item-artist { font-size: 11px; }
-  .image-meta { padding: 4px 0; gap: 1px; min-height: 22px; }
+  .image-meta { padding: 4px 0; gap: 2px; min-height: 22px; }
   .gallery-bottom { padding-top: 10px; gap: 10px; }
   .gallery-bottom-left { font-size: 14px; }
   .counter-cur { font-size: 26px; }
@@ -904,9 +977,9 @@ body::after {
       Back to closet
     </button>
     <div class="frame-right">
-      <div class="year-mark" style="font-size:28px;">
-        <span class="glyph" style="width:26px;height:26px;">
-          <svg width="10" height="10" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <div class="year-mark" style="font-size:24px;">
+        <span class="glyph" style="width:22px;height:22px;">
+          <svg width="9" height="9" viewBox="0 0 14 14"><path d="M2 2L12 12M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </span>
         <span>05.24</span>
       </div>
@@ -926,6 +999,7 @@ body::after {
       <div class="side-text right">N°<span id="sideNum">01</span></div>
       <div class="image-frame" id="imageFrame">
         <img id="mainImage" src="" alt="">
+        <div class="comment-overlay" id="commentOverlay"></div>
       </div>
       <div class="item-desc" id="itemDesc"></div>
     </div>
@@ -935,6 +1009,7 @@ body::after {
   <div class="image-meta">
     <div class="item-title" id="itemTitle"></div>
     <div class="item-artist" id="itemArtist"></div>
+    <div class="comment-inline" id="commentInline"></div>
   </div>
 
   <div class="gallery-bottom">
@@ -1010,7 +1085,11 @@ body::after {
    ・items[].title       : (optional) handwritten title under image
    ・items[].description : (optional) italic side description
    ・items[].artist      : (optional) artist credit, shown small
-                          under the image (replaces old bgWord)
+                          under the image
+   ・items[].comment     : (optional) artist's comment per item.
+                          PC : appears on hover over the image
+                          mobile : shown as italic text in the
+                          whitespace under the image meta.
    The number after the icon is auto-calculated from items.length
    ===================================================== */
 
@@ -1021,14 +1100,14 @@ const DATA = {
     icon:   'cat',
     accent: 'var(--accent-a)',
     items: [
-      { src: 'a1.png', title: '', description: '', artist: '' },
-      { src: 'a2.png', title: '', description: '', artist: '' },
-      { src: 'a3.png', title: '', description: '', artist: '' },
-      { src: 'a4.png', title: '', description: '', artist: '' },
-      { src: 'a5.png', title: '', description: '', artist: '' },
-      { src: 'a6.png', title: '', description: '', artist: '' },
-      { src: 'a7.png', title: '', description: '', artist: '' },
-      { src: 'a8.png', title: '', description: '', artist: '' }
+      { src: 'a1.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a2.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a3.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a4.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a5.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a6.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a7.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'a8.png', title: '', description: '', artist: '', comment: '' }
     ]
   },
 
@@ -1038,11 +1117,11 @@ const DATA = {
     icon:   'cat',
     accent: 'var(--accent-b)',
     items: [
-      { src: 'b1.png', title: '', description: '', artist: '' },
-      { src: 'b2.png', title: '', description: '', artist: '' },
-      { src: 'b3.png', title: '', description: '', artist: '' },
-      { src: 'b4.png', title: '', description: '', artist: '' },
-      { src: 'b5.png', title: '', description: '', artist: '' }
+      { src: 'b1.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'b2.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'b3.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'b4.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'b5.png', title: '', description: '', artist: '', comment: '' }
     ]
   },
 
@@ -1052,13 +1131,13 @@ const DATA = {
     icon:   'lion',
     accent: 'var(--accent-c)',
     items: [
-      { src: 'c1.png', title: '', description: '', artist: '' },
-      { src: 'c2.png', title: '', description: '', artist: '' },
-      { src: 'c3.png', title: '', description: '', artist: '' },
-      { src: 'c4.png', title: '', description: '', artist: '' },
-      { src: 'c5.png', title: '', description: '', artist: '' },
-      { src: 'c6.png', title: '', description: '', artist: '' },
-      { src: 'c7.png', title: '', description: '', artist: '' }
+      { src: 'c1.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c2.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c3.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c4.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c5.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c6.png', title: '', description: '', artist: '', comment: '' },
+      { src: 'c7.png', title: '', description: '', artist: '', comment: '' }
     ]
   },
 
@@ -1068,16 +1147,16 @@ const DATA = {
     icon:   'lion',
     accent: 'var(--accent-d)',
     items: [
-      { src: 'd1.png',  title: '', description: '', artist: '' },
-      { src: 'd2.png',  title: '', description: '', artist: '' },
-      { src: 'd3.png',  title: '', description: '', artist: '' },
-      { src: 'd4.png',  title: '', description: '', artist: '' },
-      { src: 'd5.png',  title: '', description: '', artist: '' },
-      { src: 'd6.png',  title: '', description: '', artist: '' },
-      { src: 'd7.png',  title: '', description: '', artist: '' },
-      { src: 'd8.png',  title: '', description: '', artist: '' },
-      { src: 'd9.png',  title: '', description: '', artist: '' },
-      { src: 'd10.png', title: '', description: '', artist: '' }
+      { src: 'd1.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd2.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd3.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd4.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd5.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd6.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd7.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd8.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd9.png',  title: '', description: '', artist: '', comment: '' },
+      { src: 'd10.png', title: '', description: '', artist: '', comment: '' }
     ]
   }
 };
@@ -1160,6 +1239,8 @@ function updateView() {
     $('#itemTitle').textContent = item.title || '';
     $('#itemArtist').textContent = item.artist ? `illustration by ${item.artist}` : '';
     $('#itemDesc').textContent = item.description || '';
+    $('#commentOverlay').textContent = item.comment || '';
+    $('#commentInline').textContent = item.comment || '';
 
     document.querySelectorAll('#dots .dot').forEach((d, i) => {
       d.classList.toggle('active', i === currentIdx);
